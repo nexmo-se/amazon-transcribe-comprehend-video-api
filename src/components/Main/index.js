@@ -18,6 +18,7 @@ function Main() {
   const videoContainer = useRef();
   let { roomName } = useParams();
   const { preferences } = useContext(UserContext);
+  const [captions, setCaptions] = useState('Say something...');
 
   const [credentials, setCredentials] = useState(null);
   const [error, setError] = useState(null);
@@ -41,6 +42,10 @@ function Main() {
     publisherError,
     destroyPublisher,
   } = usePublisher();
+
+  useEffect(() => {
+    setCaptions(messages);
+  }, [messages]);
 
   useEffect(() => {
     getCredentials(roomName)
@@ -79,7 +84,6 @@ function Main() {
   //   preferences.renderId,
   // ]);
 
-
   const handleAudioChange = useCallback(() => {
     if (hasAudio) {
       publisher.publishAudio(false);
@@ -89,8 +93,6 @@ function Main() {
       setHasAudio(true);
     }
   }, [hasAudio, publisher]);
-
-
 
   const handleVideoChange = useCallback(() => {
     if (hasVideo) {
@@ -134,6 +136,7 @@ function Main() {
           id="video-container"
         ></div>
       </div>
+      <div className="original"> {captions}</div>
       <ToolBar
         handleAudioChange={handleAudioChange}
         handleVideoChange={handleVideoChange}

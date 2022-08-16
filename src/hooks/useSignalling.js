@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useContext } from 'react';
 import { v4 as uuid } from 'uuid';
 
 export function useSignalling({ session }) {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(null);
   const [archiveId, setArchiveId] = useState(null);
   const [renderedSesion, setRenderedSession] = useState(null);
   //   const { user } = useContext(UserContext);
@@ -42,7 +42,7 @@ export function useSignalling({ session }) {
   const messageListener = useCallback(({ data, from }) => {
     console.log('received message');
     console.log(data);
-    setMessages({ data, from });
+    setMessages(data);
     // console.log('this is the data' + data);
     // let AudioContext = window.AudioContext;
     // var ctx = new AudioContext();
