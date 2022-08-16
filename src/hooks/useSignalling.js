@@ -41,6 +41,7 @@ export function useSignalling({ session }) {
 
   const messageListener = useCallback(({ data, from }) => {
     console.log('received message');
+    console.log(data);
     setMessages({ data, from });
     // console.log('this is the data' + data);
     // let AudioContext = window.AudioContext;
@@ -55,12 +56,12 @@ export function useSignalling({ session }) {
 
   useEffect(() => {
     if (session) {
-      session.on('signal:message', messageListener);
+      session.on('signal:captions', messageListener);
       session.on('signal:archiveStarted', archiveListener);
     }
     return function cleanup() {
       if (session) {
-        session.off('signal:message', messageListener);
+        session.off('signal:captions', messageListener);
         session.off('signal:archiveStarted', archiveListener);
       }
     };

@@ -1,6 +1,7 @@
 const OpenTok = require('opentok');
 const apiKey = process.env.VIDEO_API_API_KEY;
 const apiSecret = process.env.VIDEO_API_API_SECRET;
+
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 if (!apiKey || !apiSecret) {
@@ -29,13 +30,13 @@ const createSessionandToken = (session, role) => {
   });
 };
 
-const signal = (sessionId, archiveId) => {
+const signal = (sessionId, captions) => {
   return new Promise((res, rej) => {
-    console.log(archiveId + ' being sent');
+    console.log(captions + ' being sent');
     opentok.signal(
       sessionId,
       null,
-      { type: 'archiveStarted', data: archiveId },
+      { type: 'captions', data: captions },
       (err, resp) => {
         if (!err) {
           res(resp);

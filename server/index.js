@@ -1,8 +1,15 @@
 'use strict';
-require('dotenv').config();
+const path = require('path');
+let env = process.env.NODE_ENV || 'development';
+console.log(env);
+const envPath = path.join(__dirname, '..');
+console.log('envPath', envPath);
+require('dotenv').config({ path: `${envPath}/.env.${env}` });
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const cors = require('cors');
 const { createWriteStream, readFileSync } = require('fs');
 const expressWs = require('express-ws')(app);
 const axios = require('axios');
@@ -11,6 +18,7 @@ const jwt = require('jsonwebtoken');
 const websocketStream = require('websocket-stream');
 const Transform = require('stream').Transform;
 const crypto = require('crypto');
+const opentok = require('./opentok/opentok');
 const v4 = require('./aws-signature-v4.js');
 const WebSocket = require('ws');
 const {
@@ -32,13 +40,11 @@ const {
 } = require('@aws-sdk/client-transcribe-streaming');
 const comprehendClient = new ComprehendMedicalClient({ region: 'us-west-2' });
 const comprehendMedical = new ComprehendMedical({ region: 'us-west-2' });
-
-// fileBuf.on('error', function (err) {
-//   console.log(err);
-// });
-
+app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+let sessions = [];
+
+// app.use(express.static('public'));
 
 app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
@@ -54,17 +60,46 @@ app.use(function (req, res, next) {
   next();
 });
 
-// const client = new TranscribeStreamingClient({
-//   region: 'us-west-2',
-//   //   credentials,
-// });
+app.get('/session/:room', async (req, res) => {
+  try {
+    const { room: roomName } = req.params;
+    start_transcription(roomName);
+    // const localId = userId++;
+    const role = req.query.role !== undefined ? req.query.role : 'test';
+    if (sessions[roomName]) {
+      const data = opentok.generateToken(sessions[roomName].session, role);
+      res.json({
+        sessionId: sessions[roomName].session,
+        token: data.token,
+        apiKey: data.apiKey,
+        // userId: localId,
+      });
+    } else {
+      const data = await opentok.getCredentials(null, role);
+      sessions[roomName] = {
+        session: data.sessionId,
+        users: [],
+        connectionCount: 0,
+      };
+      res.json({
+        sessionId: data.sessionId,
+        token: data.token,
+        apiKey: data.apiKey,
+        // userId: localId,
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send({ message: error.message });
+  }
+});
 
 app.post('/startStreaming', async (req, res) => {
   try {
     console.log('someone wants to stream');
-    const streamId = req.body.streamId;
-    // console.log(streamId);
-    const response = await startStreamer(streamId);
+    const { streamId, sessionId } = req.body;
+    console.log(streamId, sessionId);
+    const response = await startStreamer(streamId, sessionId);
     res.send(response);
   } catch (e) {
     console.log(e);
@@ -81,28 +116,9 @@ const getEntities = async (text) => {
   // return resp.Entities;
 };
 
-// async function handleResponse(response) {
-//   for await (const event of response.TranscriptResultStream) {
-//     if (event.TranscriptEvent) {
-//       const message = event.TranscriptEvent;
-//       // Get multiple possible results
-//       const results = event.TranscriptEvent.Transcript.Results;
-//       // Print all the possible transcripts
-//       results.map((result) => {
-//         (result.Alternatives || []).map((alternative) => {
-//           const transcript = alternative.Items.map((item) => item.Content).join(
-//             ' '
-//           );
-//           console.log(transcript);
-//         });
-//       });
-//     }
-//   }
-// }
-
-const start_transcription = async () => {
+const start_transcription = async (roomName) => {
   try {
-    const url = create_presigned_url();
+    const url = create_presigned_url(roomName);
 
     await connect_to_transcribe_web_socket(url);
   } catch (e) {
@@ -110,8 +126,6 @@ const start_transcription = async () => {
   }
   // start_listener_socket();
 };
-
-start_transcription();
 
 app.ws('/socket', async (ws, req) => {
   console.log('someone connected');
@@ -124,8 +138,6 @@ app.ws('/socket', async (ws, req) => {
       } else {
         const binary = convert_audio_to_binary_message(msg);
         aws_socket.send(binary);
-
-        // start();
       }
     } catch (err) {
       ws.removeAllListeners('message');
@@ -138,79 +150,22 @@ app.ws('/socket', async (ws, req) => {
   });
 });
 
-// function wait(time) {
-//   return new Promise((resolve) => {
-//     setTimeout(resolve, time);
-//   });
-// }
-
-// async function* audioSource() {
-//   const chunkSize = 10 * 1000;
-
-//   let index = 0;
-//   let i = 0;
-//   while (index < fileBuf.length) {
-//     // while(index < chunkSize * 60) {
-//     const chunk = fileBuf.slice(
-//       index,
-//       Math.min(index + chunkSize, fileBuf.byteLength)
-//     );
-//     await wait(300);
-//     yield chunk;
-//     console.log(chunk);
-//     index += chunkSize;
-//   }
-// }
-
-// async function* audioStream() {
-//   for await (const chunk of audioSource()) {
-//     yield { AudioEvent: { AudioChunk: chunk } };
-//   }
-// }
-
-// async function start() {
-//   const command = new StartStreamTranscriptionCommand({
-//     LanguageCode: 'en-US',
-//     MediaSampleRateHertz: 16000,
-//     MediaEncoding: 'pcm',
-//     AudioStream: audioStream(),
-//     // Specialty: Specialty.CARDIOLOGY,
-//     // Type: Type.CONVERSATION
-//   });
-//   try {
-//     const data = await client.send(command);
-//     // console.log(data.TranscriptResultStream)
-//     for await (const event of data.TranscriptResultStream) {
-//       if (event.TranscriptEvent) {
-//         const results = event.TranscriptEvent.Transcript.Results;
-//         results.map((result) => {
-//           console.log(result.Alternatives);
-//           (result.Alternatives || []).map((alternative) => {
-//             const str = alternative.Items.map((item) => item.Content).join(' ');
-//             console.log(str);
-//           });
-//         });
-//       }
-//     }
-//     // console.log('DONE', data);
-//     client.destroy();
-//   } catch (e) {
-//     console.log('ERROR: ', e);
-//     process.exit(1);
-//   }
-// }
+const getRoomFromUrl = (ws) => {
+  const searchParams = new URLSearchParams(ws);
+  return searchParams.get('room');
+};
 
 const generateRestToken = () => {
   return new Promise((res, rej) => {
     jwt.sign(
       {
-        iss: process.env.apiKey,
+        iss: process.env.VIDEO_API_API_KEY,
         // iat: Date.now(),
         ist: 'project',
         exp: Date.now() + 200,
         jti: Math.random() * 132,
       },
-      process.env.apiSecret,
+      process.env.VIDEO_API_API_SECRET,
       { algorithm: 'HS256' },
       function (err, token) {
         if (token) {
@@ -225,13 +180,13 @@ const generateRestToken = () => {
   });
 };
 
-const startStreamer = async (streamId) => {
+const startStreamer = async (streamId, sessionId) => {
   try {
-    // const { sessionId, token, apiKey } = await getCredentials();
+    const { token } = await opentok.generateToken(sessionId, 'publisher');
 
     const data = JSON.stringify({
-      sessionId: process.env.sessionId,
-      token: process.env.token,
+      sessionId: sessionId,
+      token: token,
       websocket: {
         uri: `${process.env.websocket_url}/socket`,
         streams: [streamId],
@@ -240,17 +195,15 @@ const startStreamer = async (streamId) => {
         },
       },
     });
-
     const config = {
       method: 'post',
-      url: `https://api.opentok.com/v2/project/${process.env.apiKey}/connect`,
+      url: `https://api.opentok.com/v2/project/${process.env.VIDEO_API_API_KEY}/connect`,
       headers: {
         'X-OPENTOK-AUTH': await generateRestToken(),
         'Content-Type': 'application/json',
       },
       data: data,
     };
-    // console.log(config);
     const response = await axios(config);
     console.log(response.data);
     return response.data;
@@ -314,7 +267,7 @@ function connect_to_transcribe_web_socket(presignedUrl) {
   });
 }
 
-function create_presigned_url() {
+function create_presigned_url(room) {
   let endpoint = 'transcribestreaming.' + awsRegion + '.amazonaws.com:8443';
 
   return v4.createPresignedURL(
@@ -329,13 +282,16 @@ function create_presigned_url() {
       region: 'us-west-2',
       protocol: 'wss',
       expires: 300,
-      query:
-        'language-code=en-US&media-encoding=pcm&sample-rate=16000&specialty=PRIMARYCARE&type=DICTATION',
+      query: `language-code=en-US&media-encoding=pcm&sample-rate=16000&room=${room}&specialty=PRIMARYCARE&type=DICTATION`,
     }
   );
 }
 
 const print_result = (message) => {
+  const wsUrl = message.target._url;
+  const room = getRoomFromUrl(wsUrl);
+  const sessionToSignal = sessions[room].session;
+
   let messageWrapper = eventStreamMarshaller.unmarshall(
     Buffer.from(message.data)
   );
@@ -352,10 +308,22 @@ const print_result = (message) => {
     // getEntities(Results.Alternatives[0].Transcript);
   } else if (Results && !Results.IsPartial) {
     console.log(Results);
+
+    opentok.signal(sessionToSignal, Results.Alternatives[0].Transcript);
   }
 };
 
-const port = process.env.PORT || 5000;
+if (env === 'production') {
+  console.log('Setting Up express.static for production env');
+  const buildPath = path.join(__dirname, '..', 'build');
+  app.use(express.static(buildPath));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'build', 'index.html'));
+  });
+}
+
+const port = process.env.PORT || 5001;
 app.listen(port, () =>
   console.log(`Server application listening on port ${port}!`)
 );
