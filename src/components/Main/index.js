@@ -10,6 +10,14 @@ import { UserContext } from '../../context/UserContext';
 import { useSignalling } from '../../hooks/useSignalling';
 import { fixChrome687574, getLanguageCode } from '../../utils';
 import Banner from '../Banner';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
+
+import Typography from '@mui/material/Typography';
 
 function Main() {
   let translationPlaying = useRef(false);
@@ -135,6 +143,50 @@ function Main() {
           ref={videoContainer}
           id="video-container"
         ></div>
+        <div className="medicalAnalysis">
+          <div className="entityType">
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton>
+                  <ListItemIcon>
+                    <MedicalInformationIcon />
+                  </ListItemIcon>
+                  {/* <ListItemText primary="Inbox" /> */}
+                  <Typography
+                    style={{ background: '#5cceff', padding: '5px' }}
+                    variant="h6"
+                    component="h6"
+                    gutterBottom
+                  >
+                    MEDICAL CONDITION
+                  </Typography>
+                </ListItemButton>
+              </ListItem>
+            </List>
+            {/* <Typography variant="h3" component="h3" gutterBottom>
+              MEDICAL CONDITION
+            </Typography> */}
+            <h3 style={{ background: '#5cceff' }}> MEDICAL CONDITION</h3>
+            {/* <ul>
+              <li>type 2 diabetes</li>
+              <li>Hearth disease</li>
+            </ul> */}
+          </div>
+          <div className="entityType">
+            <h3 style={{ background: '#f0e442' }}>MEDICATION </h3>
+          </div>
+          <div className="entityType">
+            <h3 style={{ background: '#d185af' }}>ANATOMY</h3>
+          </div>
+          <div className="entityType">
+            <h3 style={{ background: '#4a9' }}>
+              Test, treatments AND Procedures
+            </h3>
+          </div>
+          <div className="entityType">
+            <h3 style={{ background: '#999' }}>PROTECTED_HEALTH_INFORMATION</h3>
+          </div>
+        </div>
       </div>
       <div className="original"> {captions}</div>
       <ToolBar

@@ -66,8 +66,8 @@ export function usePublisher() {
         width: '100%',
         height: '100%',
         name: preferences.name,
-        // publishVideo: true,
-        // publishAudio: false,
+        publishVideo: false,
+        publishAudio: false,
         // style: {
         //   buttonDisplayMode: 'off',
         //   nameDisplayMode: 'on',
@@ -169,6 +169,6 @@ export function usePublisher() {
     unpublish,
     isPublishing,
     publisherError,
-    deviceInfo
+    deviceInfo,
   };
 }

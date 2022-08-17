@@ -63,7 +63,7 @@ app.use(function (req, res, next) {
 app.get('/session/:room', async (req, res) => {
   try {
     const { room: roomName } = req.params;
-    start_transcription(roomName);
+    // start_transcription(roomName);
     // const localId = userId++;
     const role = req.query.role !== undefined ? req.query.role : 'test';
     if (sessions[roomName]) {
