@@ -16,11 +16,10 @@ export const getVirtualViewerCredentials = async (roomName) => {
   return axios.get(`${API_URL}/session/${roomName}?role=virtual`);
 };
 export const startTranslation = async (streamId, sessionId) => {
-  // return axios.post(`${API_URL}/startStreaming`, {
-  //   streamId,
-  //   sessionId,
-  // });
-  return null;
+  return axios.post(`${API_URL}/startStreaming`, {
+    streamId,
+    sessionId,
+  });
 };
 
 export const stopStreamer = async (sessionId, connectionId) => {

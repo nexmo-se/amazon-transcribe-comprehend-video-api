@@ -63,7 +63,7 @@ app.use(function (req, res, next) {
 app.get('/session/:room', async (req, res) => {
   try {
     const { room: roomName } = req.params;
-    // start_transcription(roomName);
+    start_transcription(roomName);
     // const localId = userId++;
     const role = req.query.role !== undefined ? req.query.role : 'test';
     if (sessions[roomName]) {
@@ -113,7 +113,7 @@ const getEntities = async (text) => {
     .detectEntitiesV2({ Text: text })
     .promise();
   console.log(resp.Entities);
-  // return resp.Entities;
+  return resp.Entities;
 };
 
 const start_transcription = async (roomName) => {
@@ -287,7 +287,7 @@ function create_presigned_url(room) {
   );
 }
 
-const print_result = (message) => {
+const print_result = async (message) => {
   const wsUrl = message.target._url;
   const room = getRoomFromUrl(wsUrl);
   const sessionToSignal = sessions[room].session;
@@ -308,8 +308,23 @@ const print_result = (message) => {
     // getEntities(Results.Alternatives[0].Transcript);
   } else if (Results && !Results.IsPartial) {
     console.log(Results);
+    try {
+      opentok.signal(
+        sessionToSignal,
+        Results.Alternatives[0].Transcript,
+        'captions'
+      );
+      const medEntities = await getEntities(Results.Alternatives[0].Transcript);
+      if (medEntities) {
+        const medEntitiesString = JSON.stringify(medEntities);
+        console.log(medEntitiesString);
+        opentok.signal(sessionToSignal, medEntitiesString, 'medicalEntities');
+      }
+    } catch (e) {
+      console.log(e);
+    }
 
-    opentok.signal(sessionToSignal, Results.Alternatives[0].Transcript);
+    // opentok.signal(sessionToSignal, Results.Alternatives[0].Transcript);
   }
 };
 

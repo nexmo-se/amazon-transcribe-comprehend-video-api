@@ -30,13 +30,13 @@ const createSessionandToken = (session, role) => {
   });
 };
 
-const signal = (sessionId, captions) => {
+const signal = (sessionId, captions, type) => {
   return new Promise((res, rej) => {
     console.log(captions + ' being sent');
     opentok.signal(
       sessionId,
       null,
-      { type: 'captions', data: captions },
+      { type: type, data: captions },
       (err, resp) => {
         if (!err) {
           res(resp);

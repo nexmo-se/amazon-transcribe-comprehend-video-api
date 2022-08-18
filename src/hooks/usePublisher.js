@@ -67,7 +67,7 @@ export function usePublisher() {
         height: '100%',
         name: preferences.name,
         publishVideo: false,
-        publishAudio: false,
+        publishAudio: true,
         // style: {
         //   buttonDisplayMode: 'off',
         //   nameDisplayMode: 'on',

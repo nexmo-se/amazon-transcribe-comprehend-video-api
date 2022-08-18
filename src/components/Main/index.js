@@ -38,9 +38,10 @@ function Main() {
   const { session, createSession, connected, status } = useSession({
     container: videoContainer,
   });
-  const { messages, sendMessage } = useSignalling({
-    session: session.current,
-  });
+  const { messages, sendMessage, medicalContitions, medication } =
+    useSignalling({
+      session: session.current,
+    });
 
   const {
     publisher,
@@ -147,21 +148,33 @@ function Main() {
           <div className="entityType">
             <List>
               <ListItem disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>
-                    <MedicalInformationIcon />
-                  </ListItemIcon>
-                  {/* <ListItemText primary="Inbox" /> */}
-                  <Typography
-                    style={{ background: '#5cceff', padding: '5px' }}
-                    variant="h6"
-                    component="h6"
-                    gutterBottom
-                  >
-                    MEDICAL CONDITION
-                  </Typography>
-                </ListItemButton>
+                {/* <ListItemButton> */}
+                <ListItemIcon>
+                  <MedicalInformationIcon />
+                </ListItemIcon>
+                {/* <ListItemText primary="Inbox" /> */}
+                <Typography
+                  style={{ background: '#5cceff', padding: '5px' }}
+                  variant="h6"
+                  component="h6"
+                  gutterBottom
+                >
+                  MEDICAL CONDITION
+                </Typography>
+
+                {medicalContitions
+                  ? medicalContitions.map((e) => (
+                      <List>
+                        <ListItemText primary={e} />
+                      </List>
+                    ))
+                  : ''}
+                {/* </ListItemButton> */}
               </ListItem>
+              {/* <List>
+                <ListItemText primary="Type 2 diabetes" />
+                lore
+              </List> */}
             </List>
             {/* <Typography variant="h3" component="h3" gutterBottom>
               MEDICAL CONDITION
