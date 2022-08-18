@@ -18,6 +18,7 @@ import ListItemText from '@mui/material/ListItemText';
 import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 
 import Typography from '@mui/material/Typography';
+import EntitiesList from '../EntitiesList';
 
 function Main() {
   let translationPlaying = useRef(false);
@@ -38,10 +39,10 @@ function Main() {
   const { session, createSession, connected, status } = useSession({
     container: videoContainer,
   });
-  const { messages, sendMessage, medicalContitions, medication } =
-    useSignalling({
-      session: session.current,
-    });
+  const medicalConditions = ['heart failure', 'type 2 diabetes', 'lung cancer'];
+  const { messages, sendMessage, medication } = useSignalling({
+    session: session.current,
+  });
 
   const {
     publisher,
@@ -146,58 +147,33 @@ function Main() {
         ></div>
         <div className="medicalAnalysis">
           <div className="entityType">
-            <List>
-              <ListItem disablePadding>
-                {/* <ListItemButton> */}
-                <ListItemIcon>
-                  <MedicalInformationIcon />
-                </ListItemIcon>
-                {/* <ListItemText primary="Inbox" /> */}
-                <Typography
-                  style={{ background: '#5cceff', padding: '5px' }}
-                  variant="h6"
-                  component="h6"
-                  gutterBottom
-                >
-                  MEDICAL CONDITION
-                </Typography>
-
-                {medicalContitions
-                  ? medicalContitions.map((e) => (
-                      <List>
-                        <ListItemText primary={e} />
-                      </List>
-                    ))
-                  : ''}
-                {/* </ListItemButton> */}
-              </ListItem>
-              {/* <List>
-                <ListItemText primary="Type 2 diabetes" />
-                lore
-              </List> */}
-            </List>
-            {/* <Typography variant="h3" component="h3" gutterBottom>
-              MEDICAL CONDITION
-            </Typography> */}
-            <h3 style={{ background: '#5cceff' }}> MEDICAL CONDITION</h3>
-            {/* <ul>
-              <li>type 2 diabetes</li>
-              <li>Hearth disease</li>
-            </ul> */}
+            <EntitiesList
+              listOfEntities={medicalConditions}
+              entity={'Medical Condition'}
+            />
           </div>
           <div className="entityType">
-            <h3 style={{ background: '#f0e442' }}>MEDICATION </h3>
+            {medicalConditions ? (
+              <EntitiesList
+                listOfEntities={medicalConditions}
+                entity={'Medication'}
+              />
+            ) : null}
           </div>
           <div className="entityType">
-            <h3 style={{ background: '#d185af' }}>ANATOMY</h3>
+            <EntitiesList
+              listOfEntities={medicalConditions}
+              entity={'Anatomy'}
+            />
           </div>
           <div className="entityType">
-            <h3 style={{ background: '#4a9' }}>
-              Test, treatments AND Procedures
-            </h3>
+            <EntitiesList
+              listOfEntities={medicalConditions}
+              entity={'Treatments'}
+            />
           </div>
           <div className="entityType">
-            <h3 style={{ background: '#999' }}>PROTECTED_HEALTH_INFORMATION</h3>
+            <EntitiesList listOfEntities={medicalConditions} entity={'PII'} />
           </div>
         </div>
       </div>
