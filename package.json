@@ -17,6 +17,8 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "aws-sdk": "^2.1196.0",
+    "aws-signature-v4": "^1.4.0",
     "axios": "^0.24.0",
     "body-parser": "^1.20.0",
     "concurrently": "^6.3.0",

@@ -247,6 +247,10 @@ function connect_to_transcribe_web_socket(presignedUrl) {
 
     aws_socket.binaryType = 'arraybuffer';
 
+    aws_socket.onerror = function (event) {
+      console.log('!! WS Error', event);
+    };
+
     aws_socket.on('open', function () {
       console.log('WS Connection Open');
 
@@ -323,7 +327,7 @@ if (env === 'production') {
   });
 }
 
-const port = process.env.PORT || 5001;
+const port = process.env.SERVER_PORT || 5001;
 app.listen(port, () =>
   console.log(`Server application listening on port ${port}!`)
 );

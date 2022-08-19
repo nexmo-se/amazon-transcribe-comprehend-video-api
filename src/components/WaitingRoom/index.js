@@ -14,7 +14,7 @@ import { AudioSettings } from '../AudioSetting';
 import { VideoSettings } from '../VideoSetting';
 import { UserContext } from '../../context/UserContext';
 import useStyles from './styles';
-import { getAudioSourceDeviceId } from '../../utils';
+import { getSourceDeviceId } from '../../utils';
 
 export default function WaitingRoom() {
   const classes = useStyles();
@@ -154,16 +154,23 @@ export default function WaitingRoom() {
 
   useEffect(() => {
     if (publisher && pubInitialised && deviceInfo) {
-      const currentAudioDevice = publisher.getAudioSource();
-      setAudioDevice(
-        getAudioSourceDeviceId(deviceInfo.audioInputDevices, currentAudioDevice)
-      );
-      const currentVideoDevice = publisher.getVideoSource();
-      setVideoDevice(currentVideoDevice.deviceId);
+      publisher.on('accessAllowed', (e) => {
 
-      OT.getActiveAudioOutputDevice().then((currentAudioOutputDevice) => {
-        setAudioOutputDevice(currentAudioOutputDevice.deviceId);
-      });
+        const currentAudioDevice = publisher.getAudioSource();
+        setAudioDevice(
+          getSourceDeviceId(deviceInfo.audioInputDevices, currentAudioDevice)
+        );
+
+        const currentVideoDevice = publisher.getVideoSource();
+        setVideoDevice(
+          getSourceDeviceId(deviceInfo.videoInputDevices, currentVideoDevice?.track)
+        );
+  
+        OT.getActiveAudioOutputDevice().then((currentAudioOutputDevice) => {
+          setAudioOutputDevice(currentAudioOutputDevice.deviceId);
+        });
+
+      })
     }
   }, [
     deviceInfo,
@@ -204,11 +211,7 @@ export default function WaitingRoom() {
       <div
         className={classes.containerCenter}
       >
-        <div
-          id="waiting-room-video-container"
-          className={classes.waitingRoomVideoPreview}
-          ref={waitingRoomVideoContainer}
-        >
+        <div className={classes.waitingRoomVideoPreview} >
           <form className={classes.form} noValidate>
             <TextField
               variant="outlined"
@@ -253,6 +256,7 @@ export default function WaitingRoom() {
                   id="demo-simple-select"
                   value={audioDevice}
                   onChange={handleAudioSource}
+                  autoWidth={true}
                 >
                   {deviceInfo.audioInputDevices.map((device) => (
                     <MenuItem key={device.deviceId} value={device.deviceId}>
@@ -280,6 +284,7 @@ export default function WaitingRoom() {
                   </Select>
                 )}
               </FormControl>
+
               <FormControl>
                 <InputLabel id="video">Select Video Source</InputLabel>
                 {deviceInfo.videoInputDevices && (
@@ -288,6 +293,7 @@ export default function WaitingRoom() {
                     id="demo-simple-select"
                     value={videoDevice}
                     onChange={handleVideoSource}
+                    autoWidth={true}
                   >
                     {deviceInfo.videoInputDevices.map((device) => (
                       <MenuItem key={device.deviceId} value={device.deviceId}>
@@ -310,6 +316,12 @@ export default function WaitingRoom() {
               hasVideo={localVideo}
               onVideoChange={handleVideoChange}
             />
+          </div>
+          <div
+            id="waiting-room-video-container"
+            className={classes.waitingRoomVideoContainer} 
+            ref={waitingRoomVideoContainer}
+          >
           </div>
         </div>
       </div>

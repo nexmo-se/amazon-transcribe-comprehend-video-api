@@ -9,18 +9,18 @@ export default makeStyles((theme) => ({
     flexDirection: 'column',
     transform: 'translate(-50%, -50%)',
     backgroundColor: blueGrey[100],
-    padding: '25px',
+    padding: '0px 20px 10px 20px',
     borderRadius: 5,
     width: '360px'
   },
-  waitingRoomVideoPreview: {
+  waitingRoomVideoContainer: {
     width: '360px',
     height: '264px'
   },
   deviceContainer: {
     display: 'flex',
     flexDirection: 'column',
-    margin: '10px 5px'
+    margin: '2px 0 10px 0'
   },
   deviceSettings: {
     display: 'flex',
