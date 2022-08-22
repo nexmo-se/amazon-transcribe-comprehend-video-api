@@ -9,7 +9,7 @@ export function useSignalling({ session }) {
   const [archiveId, setArchiveId] = useState(null);
   const [renderedSesion, setRenderedSession] = useState(null);
   const [medication, setMedicationEntities] = useState([]);
-  const [medicalContitions, setMedicalConditionsEntities] = useState([]);
+  const [medicalConditions, setMedicalConditionsEntities] = useState([]);
   //   const { user } = useContext(UserContext);
 
   const signal = useCallback(
@@ -42,21 +42,35 @@ export function useSignalling({ session }) {
     [signal]
   );
 
-  useEffect(() => {
-    if (medicalContitions) console.log(medicalContitions);
-    if (medication) console.log(medication);
-  }, [medicalContitions, medication]);
+  // useEffect(() => {
+  //   if (medicalConditions) console.log(medicalConditions);
+  //   if (medication) console.log(medication);
+  // }, [medicalContitions, medication]);
+
+  const medicationListener = useCallback(({ data, from }) => {
+    const dataJson = JSON.parse(data);
+    const medString = `${dataJson[0].Description} | ${dataJson[0].Code}`;
+    setMedicationEntities((prev) => [...prev, medString]);
+  }, []);
+
+  const medConditionListener = useCallback(({ data, from }) => {
+    const dataJson = JSON.parse(data);
+    const medString = `${dataJson[0].Description} | ${dataJson[0].Code}`;
+    setMedicalConditionsEntities((prev) => [...prev, medString]);
+  }, []);
 
   const entitiesListener = useCallback(({ data, from }) => {
     const dataJson = JSON.parse(data);
     if (dataJson.length) {
       dataJson.forEach((entity) => {
-        if (entity.Category === 'MEDICAL_CONDITION')
+        if (entity?.Category === 'MEDICAL_CONDITION')
           // setMedicalConditionsEntities(entity.Text);
           setMedicalConditionsEntities((prev) => [...prev, entity.Text]);
-        if (entity.Category === 'MEDICATION')
+        if (entity?.Category === 'MEDICATION')
           // setMedicationEntities(entity.Text);
           setMedicationEntities((prev) => [...prev, entity.Text]);
+
+        if (entity?.Description) console.log(entity);
       });
     }
   }, []);
@@ -72,22 +86,32 @@ export function useSignalling({ session }) {
       session.on('signal:captions', messageListener);
       session.on('signal:medicalEntities', entitiesListener);
       session.on('signal:archiveStarted', archiveListener);
+      session.on('signal:medication', medicationListener);
+      session.on('signal:medCondition', medConditionListener);
     }
     return function cleanup() {
       if (session) {
         session.off('signal:captions', messageListener);
         session.off('signal:archiveStarted', archiveListener);
         session.off('signal:medicalEntities', entitiesListener);
+        session.off('signal:medication', medicationListener);
+        session.off('signal:medCondition', medicationListener);
       }
     };
-  }, [session, messageListener, archiveListener, entitiesListener]);
+  }, [
+    session,
+    messageListener,
+    archiveListener,
+    entitiesListener,
+    medicationListener,
+  ]);
 
   return {
     sendMessage,
     messages,
     archiveId,
     renderedSesion,
-    medicalContitions,
+    medicalConditions,
     medication,
   };
 }

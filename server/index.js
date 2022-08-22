@@ -116,6 +116,20 @@ const getEntities = async (text) => {
   return resp.Entities;
 };
 
+const detectRxNorm = async (text) => {
+  if (text === undefined || text.replace(/\s/g, '') === '') return [];
+
+  const resp = await comprehendMedical.inferRxNorm({ Text: text }).promise();
+  return resp.Entities;
+};
+
+const detectICD10CM = async (text) => {
+  if (text === undefined || text.replace(/\s/g, '') === '') return [];
+
+  const resp = await comprehendMedical.inferICD10CM({ Text: text }).promise();
+  return resp.Entities;
+};
+
 const start_transcription = async (roomName) => {
   try {
     const url = create_presigned_url(roomName);
@@ -303,9 +317,6 @@ const print_result = async (message) => {
     : null;
 
   if (Results && Results.IsPartial) {
-    // console.log(Results);
-    // console.log(Results.Alternatives[0].Transcript);
-    // getEntities(Results.Alternatives[0].Transcript);
   } else if (Results && !Results.IsPartial) {
     console.log(Results);
     try {
@@ -316,9 +327,19 @@ const print_result = async (message) => {
       );
       const medEntities = await getEntities(Results.Alternatives[0].Transcript);
       if (medEntities) {
-        const medEntitiesString = JSON.stringify(medEntities);
-        console.log(medEntitiesString);
-        opentok.signal(sessionToSignal, medEntitiesString, 'medicalEntities');
+        // const medEntitiesString = JSON.stringify(medEntities);
+        // console.log(medEntitiesString);
+        const rxNorm = await detectRxNorm(Results.Alternatives[0].Transcript);
+        const ICD10CM = await detectICD10CM(Results.Alternatives[0].Transcript);
+        if (rxNorm[0]?.RxNormConcepts) {
+          const rxString = JSON.stringify(rxNorm[0]?.RxNormConcepts);
+          console.log(rxNorm[0].RxNormConcepts);
+          opentok.signal(sessionToSignal, rxString, 'medication');
+        }
+        if (ICD10CM[0]?.ICD10CMConcepts) {
+          const ICD10CMString = JSON.stringify(ICD10CM[0]?.ICD10CMConcepts);
+          opentok.signal(sessionToSignal, ICD10CMString, 'medCondition');
+        }
       }
     } catch (e) {
       console.log(e);

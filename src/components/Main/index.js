@@ -39,10 +39,11 @@ function Main() {
   const { session, createSession, connected, status } = useSession({
     container: videoContainer,
   });
-  const medicalConditions = ['heart failure', 'type 2 diabetes', 'lung cancer'];
-  const { messages, sendMessage, medication } = useSignalling({
-    session: session.current,
-  });
+  // const medicalConditions = ['heart failure', 'type 2 diabetes', 'lung cancer'];
+  const { messages, sendMessage, medication, medicalConditions } =
+    useSignalling({
+      session: session.current,
+    });
 
   const {
     publisher,
@@ -153,11 +154,8 @@ function Main() {
             />
           </div>
           <div className="entityType">
-            {medicalConditions ? (
-              <EntitiesList
-                listOfEntities={medicalConditions}
-                entity={'Medication'}
-              />
+            {medication ? (
+              <EntitiesList listOfEntities={medication} entity={'Medication'} />
             ) : null}
           </div>
           <div className="entityType">
