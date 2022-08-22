@@ -116,11 +116,6 @@ export function useSession({ container }) {
         throw new Error('Missing token');
       }
 
-      // const session =
-      //   '1_MX40NzM5NjUwMX5-MTY0MjAwMzU1MjExNn44Y0VMd0tlYmJDUEtiNWdwZHBLakRVMTJ-fg';
-      // const tok =
-      //   'T1==cGFydG5lcl9pZD00NzM5NjUwMSZzaWc9ZmQxYjcyMDVhODZhYzM3YmNlODRjMjI2NjI2YTFhOGVjY2VjYjNlNTpzZXNzaW9uX2lkPTFfTVg0ME56TTVOalV3TVg1LU1UWTBNakF3TXpVMU1qRXhObjQ0WTBWTWQwdGxZbUpEVUV0aU5XZHdaSEJMYWtSVk1USi1mZyZjcmVhdGVfdGltZT0xNjQyMDA1MjUxJm5vbmNlPTAuOTM2ODA5NTAzMTM3NzAwNCZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNjQyMDkxNjUwJmluaXRpYWxfbGF5b3V0X2NsYXNzX2xpc3Q9';
-
       sessionRef.current = OT.initSession(apiKey, sessionId, {});
       const eventHandlers = {
         streamCreated: onStreamCreated,

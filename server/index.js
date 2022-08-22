@@ -113,7 +113,21 @@ const getEntities = async (text) => {
     .detectEntitiesV2({ Text: text })
     .promise();
   console.log(resp.Entities);
-  // return resp.Entities;
+  return resp.Entities;
+};
+
+const detectRxNorm = async (text) => {
+  if (text === undefined || text.replace(/\s/g, '') === '') return [];
+
+  const resp = await comprehendMedical.inferRxNorm({ Text: text }).promise();
+  return resp.Entities;
+};
+
+const detectICD10CM = async (text) => {
+  if (text === undefined || text.replace(/\s/g, '') === '') return [];
+
+  const resp = await comprehendMedical.inferICD10CM({ Text: text }).promise();
+  return resp.Entities;
 };
 
 const start_transcription = async (roomName) => {
@@ -291,7 +305,7 @@ function create_presigned_url(room) {
   );
 }
 
-const print_result = (message) => {
+const print_result = async (message) => {
   const wsUrl = message.target._url;
   const room = getRoomFromUrl(wsUrl);
   const sessionToSignal = sessions[room].session;
@@ -307,13 +321,35 @@ const print_result = (message) => {
     : null;
 
   if (Results && Results.IsPartial) {
-    // console.log(Results);
-    // console.log(Results.Alternatives[0].Transcript);
-    // getEntities(Results.Alternatives[0].Transcript);
   } else if (Results && !Results.IsPartial) {
     console.log(Results);
+    try {
+      opentok.signal(
+        sessionToSignal,
+        Results.Alternatives[0].Transcript,
+        'captions'
+      );
+      const medEntities = await getEntities(Results.Alternatives[0].Transcript);
+      if (medEntities) {
+        // const medEntitiesString = JSON.stringify(medEntities);
+        // console.log(medEntitiesString);
+        const rxNorm = await detectRxNorm(Results.Alternatives[0].Transcript);
+        const ICD10CM = await detectICD10CM(Results.Alternatives[0].Transcript);
+        if (rxNorm[0]?.RxNormConcepts) {
+          const rxString = JSON.stringify(rxNorm[0]?.RxNormConcepts);
+          console.log(rxNorm[0].RxNormConcepts);
+          opentok.signal(sessionToSignal, rxString, 'medication');
+        }
+        if (ICD10CM[0]?.ICD10CMConcepts) {
+          const ICD10CMString = JSON.stringify(ICD10CM[0]?.ICD10CMConcepts);
+          opentok.signal(sessionToSignal, ICD10CMString, 'medCondition');
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
 
-    opentok.signal(sessionToSignal, Results.Alternatives[0].Transcript);
+    // opentok.signal(sessionToSignal, Results.Alternatives[0].Transcript);
   }
 };
 

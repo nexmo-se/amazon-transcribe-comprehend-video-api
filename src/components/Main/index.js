@@ -10,6 +10,15 @@ import { UserContext } from '../../context/UserContext';
 import { useSignalling } from '../../hooks/useSignalling';
 import { fixChrome687574, getLanguageCode } from '../../utils';
 import Banner from '../Banner';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
+
+import Typography from '@mui/material/Typography';
+import EntitiesList from '../EntitiesList';
 
 function Main() {
   let translationPlaying = useRef(false);
@@ -30,9 +39,11 @@ function Main() {
   const { session, createSession, connected, status } = useSession({
     container: videoContainer,
   });
-  const { messages, sendMessage } = useSignalling({
-    session: session.current,
-  });
+  // const medicalConditions = ['heart failure', 'type 2 diabetes', 'lung cancer'];
+  const { messages, sendMessage, medication, medicalConditions } =
+    useSignalling({
+      session: session.current,
+    });
 
   const {
     publisher,
@@ -135,6 +146,34 @@ function Main() {
           ref={videoContainer}
           id="video-container"
         ></div>
+        <div className="medicalAnalysis">
+          <div className="entityType">
+            <EntitiesList
+              listOfEntities={medicalConditions}
+              entity={'Medical Condition'}
+            />
+          </div>
+          <div className="entityType">
+            {medication ? (
+              <EntitiesList listOfEntities={medication} entity={'Medication'} />
+            ) : null}
+          </div>
+          <div className="entityType">
+            <EntitiesList
+              listOfEntities={medicalConditions}
+              entity={'Anatomy'}
+            />
+          </div>
+          <div className="entityType">
+            <EntitiesList
+              listOfEntities={medicalConditions}
+              entity={'Treatments'}
+            />
+          </div>
+          <div className="entityType">
+            <EntitiesList listOfEntities={medicalConditions} entity={'PII'} />
+          </div>
+        </div>
       </div>
       <div className="original"> {captions}</div>
       <ToolBar

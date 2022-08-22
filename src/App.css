@@ -4,12 +4,12 @@
 body {
   min-height: 100%;
 } */
-* {
+/* * {
   -ms-overflow-style: none;
 }
 ::-webkit-scrollbar {
   display: none;
-}
+} */
 
 .text {
   margin-left: 20px;
@@ -18,7 +18,7 @@ body {
 }
 
 .video {
-  width: 100%;
+  width: 70%;
   /* margin-top: 20vh; */
   height: 100%;
   display: flex;
@@ -37,7 +37,7 @@ body {
 }
 
 .flex-container {
-  height: 100vh;
+  max-height: 100vh;
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;
@@ -58,38 +58,27 @@ body {
   align-items: flex-start;
 }
 
-/* .videoContainer {
-  -webkit-order: 0;
-  -ms-flex-order: 0;
-  order: 0;
-  -webkit-flex: 1 1 auto;
-  -ms-flex: 1 1 auto;
-  flex: 0.5 1 auto;
-  -webkit-align-self: stretch;
-  -ms-flex-item-align: stretch;
-  align-self: stretch;
-  margin: auto;
-  padding: 15px 30px;
-  display: flex;
-  background: linear-gradient(to right, #8728fb, #fea18c) !important;
-  color: #fff;
-  width: 100%;
-  align-items: center;
-} */
-
 .videoContainer {
   flex: 10 1 auto;
 
+  /* height: 100vh; */
+  max-height: 80vh;
   align-self: stretch;
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: center;
+  /* justify-content: center; */
   align-content: center;
-  align-items: center;
+  /* align-items: center; */
   display: flex;
+}
+
+.entityType {
+  /* margin: auto; */
+  margin-left: 20px;
+  padding: 5px;
 }
 
 .grande {
@@ -128,27 +117,34 @@ body {
   justify-content: center;
   /* align-self: ; */
 }
+
+.medicalAnalysis {
+  background: #eee;
+  width: 30%;
+  height: 100%;
+  /* margin-left: auto;
+  margin-right: auto; */
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items: flex-start;
+  align-content: flex-start;
+  overflow-y: scroll;
+}
 .videos {
   flex: 2;
   /* background-color: yellow; */
-  height: 100%;
+  height: 80%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   align-content: center;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
 }
 .OT_publisher {
   order: 1;
 }
 .OT_subscriber {
   order: 3;
-}
-
-.videoTrulience {
-  /* flex: 1 0 31%; */
-  order: 2;
-  object-fit: contain;
-  height: 100%;
 }
