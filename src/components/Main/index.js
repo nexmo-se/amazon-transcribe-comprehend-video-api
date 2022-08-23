@@ -8,16 +8,7 @@ import ToolBar from '../ToolBar';
 import { getCredentials } from '../../api/fetchCreds';
 import { UserContext } from '../../context/UserContext';
 import { useSignalling } from '../../hooks/useSignalling';
-import { fixChrome687574, getLanguageCode } from '../../utils';
-import Banner from '../Banner';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 
-import Typography from '@mui/material/Typography';
 import EntitiesList from '../EntitiesList';
 
 function Main() {
@@ -40,10 +31,16 @@ function Main() {
     container: videoContainer,
   });
   // const medicalConditions = ['heart failure', 'type 2 diabetes', 'lung cancer'];
-  const { messages, sendMessage, medication, medicalConditions } =
-    useSignalling({
-      session: session.current,
-    });
+  const {
+    messages,
+    sendMessage,
+    medication,
+    medicalConditions,
+    piiEntities,
+    anatomyEntities,
+  } = useSignalling({
+    session: session.current,
+  });
 
   const {
     publisher,
@@ -158,20 +155,17 @@ function Main() {
               <EntitiesList listOfEntities={medication} entity={'Medication'} />
             ) : null}
           </div>
-          <div className="entityType">
+          {/* <div className="entityType">
             <EntitiesList
-              listOfEntities={medicalConditions}
+              listOfEntities={anatomyEntities}
               entity={'Anatomy'}
             />
+          </div> */}
+          <div className="entityType">
+            <EntitiesList listOfEntities={anatomyEntities} entity={'Anatomy'} />
           </div>
           <div className="entityType">
-            <EntitiesList
-              listOfEntities={medicalConditions}
-              entity={'Treatments'}
-            />
-          </div>
-          <div className="entityType">
-            <EntitiesList listOfEntities={medicalConditions} entity={'PII'} />
+            <EntitiesList listOfEntities={piiEntities} entity={'PII'} />
           </div>
         </div>
       </div>

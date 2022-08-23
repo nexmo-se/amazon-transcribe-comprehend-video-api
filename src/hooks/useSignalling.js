@@ -10,6 +10,8 @@ export function useSignalling({ session }) {
   const [renderedSesion, setRenderedSession] = useState(null);
   const [medication, setMedicationEntities] = useState([]);
   const [medicalConditions, setMedicalConditionsEntities] = useState([]);
+  const [anatomyEntities, setAnatomyEntities] = useState([]);
+  const [piiEntities, setPiiEntities] = useState([]);
   //   const { user } = useContext(UserContext);
 
   const signal = useCallback(
@@ -63,14 +65,11 @@ export function useSignalling({ session }) {
     const dataJson = JSON.parse(data);
     if (dataJson.length) {
       dataJson.forEach((entity) => {
-        if (entity?.Category === 'MEDICAL_CONDITION')
-          // setMedicalConditionsEntities(entity.Text);
-          setMedicalConditionsEntities((prev) => [...prev, entity.Text]);
-        if (entity?.Category === 'MEDICATION')
-          // setMedicationEntities(entity.Text);
-          setMedicationEntities((prev) => [...prev, entity.Text]);
+        if (entity?.Category === 'ANATOMY')
+          setAnatomyEntities((prev) => [...prev, entity.Text]);
 
-        if (entity?.Description) console.log(entity);
+        if (entity?.Category === 'PROTECTED_HEALTH_INFORMATION')
+          setPiiEntities((prev) => [...prev, entity.Text]);
       });
     }
   }, []);
@@ -104,6 +103,7 @@ export function useSignalling({ session }) {
     archiveListener,
     entitiesListener,
     medicationListener,
+    medConditionListener,
   ]);
 
   return {
@@ -113,5 +113,7 @@ export function useSignalling({ session }) {
     renderedSesion,
     medicalConditions,
     medication,
+    piiEntities,
+    anatomyEntities,
   };
 }

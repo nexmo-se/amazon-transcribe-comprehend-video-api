@@ -68,6 +68,15 @@ const print_result = async (message) => {
       );
       const medEntities = await getEntities(Results.Alternatives[0].Transcript);
       if (medEntities) {
+        if (
+          medEntities[0]?.Category === 'ANATOMY' ||
+          medEntities[0]?.Category === 'PROTECTED_HEALTH_INFORMATION'
+        ) {
+          const medEntitiesString = JSON.stringify(medEntities);
+
+          opentok.signal(sessionToSignal, medEntitiesString, 'medicalEntities');
+        }
+
         // const medEntitiesString = JSON.stringify(medEntities);
         // console.log(medEntitiesString);
         const rxNorm = await detectRxNorm(Results.Alternatives[0].Transcript);
@@ -91,5 +100,5 @@ const print_result = async (message) => {
 };
 
 module.exports = {
-  print_result
-}
+  print_result,
+};
