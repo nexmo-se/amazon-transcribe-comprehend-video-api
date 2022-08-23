@@ -41,6 +41,7 @@ async function connect_to_transcribe_web_socket(presignedUrl, {sessionId, stream
 
     aws_socket.binaryType = 'arraybuffer';
     aws_socket.uuid = streamId;
+    aws_socket.sessionId = sessionId;
 
     aws_socket.onopen = function () {
       console.log('WS Connection Open');
@@ -48,7 +49,7 @@ async function connect_to_transcribe_web_socket(presignedUrl, {sessionId, stream
     };
 
     aws_socket.onmessage = function (message) {
-      handleMessage(message, sessionId);
+      handleMessage(message);
       // comprehend.print_result
     };
 

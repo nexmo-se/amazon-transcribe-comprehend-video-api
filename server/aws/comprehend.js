@@ -40,8 +40,10 @@ const getRoomFromUrl = (ws) => {
 
 //// Credentials should move to envs or use iam role
 
-const print_result = async (message, sessionToSignal) => {
+const print_result = async (message) => {
   const wsUrl = message.target._url;
+  const streamId = message.target.uuid;
+  const sessionToSignal = message.target.sessionId;
   //const room = getRoomFromUrl(wsUrl);
   //const sessionToSignal = sessions[room].session;
 
