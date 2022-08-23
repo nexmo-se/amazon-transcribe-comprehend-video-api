@@ -186,7 +186,7 @@ const generateToken = (sessionId, role) => {
   const token = role
     ? opentok.generateToken(sessionId, { data: role })
     : opentok.generateToken(sessionId);
-  return { token: token, apiKey: apiKey };
+    return { token: token, apiKey: apiKey };
 };
 
 const initiateArchiving = async (sessionId) => {
@@ -207,6 +207,7 @@ const getCredentials = async (session = null, role) => {
   const token = data.token;
   return { sessionId: sessionId, token: token, apiKey: apiKey };
 };
+
 const listArchives = async (sessionId) => {
   return new Promise((resolve, reject) => {
     const options = { sessionId };
@@ -220,6 +221,39 @@ const listArchives = async (sessionId) => {
   });
 };
 
+const startStreamer = async (streamId, sessionId) => {
+  try {
+    const token = opentok.generateToken(sessionId, 'publisher');
+
+    const data = JSON.stringify({
+      sessionId: sessionId,
+      token: token,
+      websocket: {
+        uri: `${process.env.websocket_url}/socket`,
+        streams: [streamId],
+        headers: {
+          from: streamId,
+        },
+      },
+    });
+    const config = {
+      method: 'post',
+      url: `https://api.opentok.com/v2/project/${process.env.VIDEO_API_API_KEY}/connect`,
+      headers: {
+        'X-OPENTOK-AUTH': await generateRestToken(),
+        'Content-Type': 'application/json',
+      },
+      data: data,
+    };
+    const response = await axios(config);
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e?.response?.data);
+    return e;
+  }
+};
+
 module.exports = {
   getCredentials,
   generateToken,
@@ -231,4 +265,5 @@ module.exports = {
   deleteRender,
   signal,
   forceDisconnect,
+  startStreamer
 };
