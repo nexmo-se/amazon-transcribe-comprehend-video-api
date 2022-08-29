@@ -7,6 +7,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 import VaccinesIcon from '@mui/icons-material/Vaccines';
 import MedicationIcon from '@mui/icons-material/Medication';
@@ -48,34 +51,52 @@ function EntitiesList({ listOfEntities, entity }) {
         return;
     }
   };
-  return (
+  return (<>
     <List>
-      <ListItem disablePadding>
+      <ListItem key={entity} disablePadding>
         <ListItemIcon>{getIcon(entity)}</ListItemIcon>
-
+        
         <Typography
-          style={{ background: getBgColor(entity), padding: '5px' }}
-          variant="h6"
-          component="h6"
-          gutterBottom
-        >
-          {entity}
-        </Typography>
-      </ListItem>
-      <List
-        sx={{
-          width: '100%',
-          padding: '5px',
-          maxWidth: 360,
-          bgcolor: 'background.paper',
-        }}
-      >
-        {listOfEntities
-          ? listOfEntities.map((e) => <ListItemText key={e} primary={e} />)
-          : ''}
-      </List>
+        style={{ background: getBgColor(entity), padding: '0px' }}
+            variant="div"
+            component="div"
+            gutterBottom
+          >
+            {entity}
+          </Typography>
+        </ListItem>
     </List>
-  );
+    <List sx={{
+      pl:2,
+      display: "flex",
+      flexDirection: "column",
+      maxHeight: 120,
+      overflow: "hidden",
+      overflowY: "scroll",
+      bgcolor: 'background.paper'
+    }}>
+      {listOfEntities
+        ? listOfEntities.map((e, i) => <div key={`${e.Text}-${i}`} >
+          <ListItem disablePadding>
+            <ListItemText primary={e.Text} />
+          </ListItem>
+          <Collapse in={true} timeout="auto" unmountOnExit sx={{pl:2}}>
+          <List component="div" disablePadding>
+          {e.concepts?
+            <Select value='0' size="small">
+              {e.concepts.map((_e, _i) => 
+                <MenuItem key={`item-${i}-${_i}`} value={_i} >
+                  {`${_e.Code} | ${_e.Description} | ${_e.Score}`}
+                </MenuItem>
+                )}
+            </Select>
+            : ''}
+            </List>
+            </Collapse>
+        </div>)
+        : ''}
+    </List>
+  </>);
 }
 
 export default EntitiesList;

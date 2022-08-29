@@ -51,14 +51,31 @@ export function useSignalling({ session }) {
 
   const medicationListener = useCallback(({ data, from }) => {
     const dataJson = JSON.parse(data);
-    const medString = `${dataJson[0].Description} | ${dataJson[0].Code}`;
-    setMedicationEntities((prev) => [...prev, medString]);
+    // const medString = `${dataJson[0].Description} | ${dataJson[0].Code}`;
+    // setMedicationEntities((prev) => [...prev, medString]);
+    //console.log(dataJson)
+    if (dataJson.length) {
+      dataJson.forEach((entity) => {
+        setMedicationEntities((prev) => [...prev, {
+          Text: `${entity.Text} | ${entity.Score}`, 
+          concepts: entity.RxNormConcepts? entity.RxNormConcepts : []
+        }]);
+      })
+    }
   }, []);
 
   const medConditionListener = useCallback(({ data, from }) => {
     const dataJson = JSON.parse(data);
-    const medString = `${dataJson[0].Description} | ${dataJson[0].Code}`;
-    setMedicalConditionsEntities((prev) => [...prev, medString]);
+    // const medString = `${dataJson[0].Description} | ${dataJson[0].Code}`;
+    // setMedicalConditionsEntities((prev) => [...prev, medString]);
+    if (dataJson.length) {
+      dataJson.forEach((entity) => {
+        setMedicalConditionsEntities((prev) => [...prev, {
+          Text: `${entity.Text} | ${entity.Score}`, 
+          concepts: entity.ICD10CMConcepts? entity.ICD10CMConcepts : []
+        }]);
+      })
+    }
   }, []);
 
   const entitiesListener = useCallback(({ data, from }) => {
@@ -66,10 +83,10 @@ export function useSignalling({ session }) {
     if (dataJson.length) {
       dataJson.forEach((entity) => {
         if (entity?.Category === 'ANATOMY')
-          setAnatomyEntities((prev) => [...prev, entity.Text]);
+          setAnatomyEntities((prev) => [...prev, entity]);
 
         if (entity?.Category === 'PROTECTED_HEALTH_INFORMATION')
-          setPiiEntities((prev) => [...prev, entity.Text]);
+          setPiiEntities((prev) => [...prev, entity]);
       });
     }
   }, []);

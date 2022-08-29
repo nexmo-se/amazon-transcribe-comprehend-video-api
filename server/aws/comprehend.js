@@ -23,15 +23,33 @@ const detectRxNorm = async (text) => {
   if (text === undefined || text.replace(/\s/g, '') === '') return [];
 
   const resp = await comprehendMedical.inferRxNorm({ Text: text }).promise();
-  return resp.Entities;
+  //console.log('inferRxNorm', resp.Entities);
+  if (resp.Entities && resp.Entities.length) {
+    const entities = sortConcepts(resp.Entities, 'RxNormConcepts');
+    return entities
+  }
+  else return resp.Entities;
 };
 
 const detectICD10CM = async (text) => {
   if (text === undefined || text.replace(/\s/g, '') === '') return [];
 
   const resp = await comprehendMedical.inferICD10CM({ Text: text }).promise();
-  return resp.Entities;
+  //console.log('inferICD10CM', resp.Entities);
+  if (resp.Entities && resp.Entities.length) {
+    const entities = sortConcepts(resp.Entities, 'ICD10CMConcepts');
+    return entities
+  }
+  else return resp.Entities;
 };
+
+const sortConcepts = (rawEntities, conceptAttribute) => rawEntities.map((entity) => {
+    if (entity[conceptAttribute].length === 0) return entity;
+    const sortedConcepts = sortByScoreDescending(entity[conceptAttribute]);
+    return { ...entity, [conceptAttribute]: sortedConcepts };
+  });
+
+const sortByScoreDescending = (concepts) => [...concepts].sort((concept1, concept2) => concept2.Score - concept1.Score);
 
 const getRoomFromUrl = (ws) => {
   const searchParams = new URLSearchParams(ws);
@@ -77,18 +95,20 @@ const print_result = async (message) => {
           opentok.signal(sessionToSignal, medEntitiesString, 'medicalEntities');
         }
 
-        // const medEntitiesString = JSON.stringify(medEntities);
-        // console.log(medEntitiesString);
         const rxNorm = await detectRxNorm(Results.Alternatives[0].Transcript);
-        const ICD10CM = await detectICD10CM(Results.Alternatives[0].Transcript);
-        if (rxNorm[0]?.RxNormConcepts) {
-          const rxString = JSON.stringify(rxNorm[0]?.RxNormConcepts);
-          console.log(rxNorm[0].RxNormConcepts);
-          opentok.signal(sessionToSignal, rxString, 'medication');
+        if (rxNorm && rxNorm[0]?.RxNormConcepts) {
+          //const rxString = JSON.stringify(rxNorm[0]?.RxNormConcepts);
+          //opentok.signal(sessionToSignal, rxString, 'medication');
+          //
+          opentok.signal(sessionToSignal, JSON.stringify(rxNorm), 'medication');
         }
-        if (ICD10CM[0]?.ICD10CMConcepts) {
-          const ICD10CMString = JSON.stringify(ICD10CM[0]?.ICD10CMConcepts);
-          opentok.signal(sessionToSignal, ICD10CMString, 'medCondition');
+
+        const ICD10CM = await detectICD10CM(Results.Alternatives[0].Transcript);
+        if (ICD10CM && ICD10CM[0]?.ICD10CMConcepts) {
+          //const ICD10CMString = JSON.stringify(ICD10CM[0]?.ICD10CMConcepts);
+          //opentok.signal(sessionToSignal, ICD10CMString, 'medCondition');
+          //
+          opentok.signal(sessionToSignal, JSON.stringify(ICD10CM), 'medCondition');
         }
       }
     } catch (e) {

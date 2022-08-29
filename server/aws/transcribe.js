@@ -34,7 +34,6 @@ function create_presigned_url(room) {
 
 async function connect_to_transcribe_web_socket(presignedUrl, {sessionId, streamId}, handleMessage) {
   console.log('Opening WS Connection', presignedUrl);
-  console.log('Opening WS Connection', streamId, sessionId);
 
   try {
     aws_socket = new WebSocket(presignedUrl);
@@ -109,7 +108,7 @@ const aws_socket_send = (msg, fromStreamId) => {
 
     const aws_socket = aws_sockets.get(fromStreamId);
     if (!aws_socket || aws_socket.readyState !== WebSocket.OPEN) {
-      console.log('aws_socket_send did not send', aws_socket);
+      //console.log('aws_socket_send did not send', aws_socket);
       return;
     }
     const binary = convert_audio_to_binary_message(msg);
