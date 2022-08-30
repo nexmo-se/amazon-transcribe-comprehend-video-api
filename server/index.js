@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+
 let env = process.env.NODE_ENV || 'development';
 console.log(env);
 const envPath = path.join(__dirname, '..');
@@ -12,36 +13,14 @@ const bodyParser = require('body-parser');
 const app = express();
 const cors = require('cors');
 const expressWs = require('express-ws')(app);
-// const { createWriteStream, readFileSync } = require('fs');
-// const { Readable } = require('stream');
-// const websocketStream = require('websocket-stream');
-// const Transform = require('stream').Transform;
+
 const opentok = require('./opentok/opentok');
 const transcribe = require('./aws/transcribe');
 const comprehend = require('./aws/comprehend');
 
-// const {
-//   ComprehendMedicalClient,
-//   DescribeEntitiesDetectionV2JobCommand,
-// } = require('@aws-sdk/client-comprehendmedical');
-// const { ComprehendMedical } = require('aws-sdk');
-
-// const marshaller = require('@aws-sdk/eventstream-marshaller');
-// const util_utf8_node = require('@aws-sdk/util-utf8-node');
-// const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
-//   util_utf8_node.toUtf8,
-//   util_utf8_node.fromUtf8
-// );
-
-// const {
-//   TranscribeStreamingClient,
-//   StartStreamTranscriptionCommand,
-// } = require('@aws-sdk/client-transcribe-streaming');
-// const comprehendClient = new ComprehendMedicalClient({ region: 'us-west-2' });
-// const comprehendMedical = new ComprehendMedical({ region: 'us-west-2' });
-
 app.use(cors());
 app.use(bodyParser.json());
+
 let sessions = [];
 
 // app.use(express.static('public'));
@@ -100,10 +79,9 @@ app.post('/startStreaming', async (req, res) => {
   try {
     console.log('someone wants to stream');
     const { streamId, sessionId } = req.body;
-    console.log(streamId, sessionId);
+    const roomName = app.get('roomName-' + sessionId);
+    console.log(streamId, sessionId, roomName);
     
-    var roomName = app.get('roomName-' + sessionId);
-    console.log(`start_transcription: room[${roomName}]`);
     await transcribe.start_transcription({
       roomName,
       sessionId, 

@@ -223,7 +223,7 @@ const listArchives = async (sessionId) => {
 
 const startStreamer = async (streamId, sessionId) => {
   try {
-    const token = opentok.generateToken(sessionId, 'publisher');
+    const { token } = generateToken(sessionId, 'publisher');
 
     const data = JSON.stringify({
       sessionId: sessionId,
