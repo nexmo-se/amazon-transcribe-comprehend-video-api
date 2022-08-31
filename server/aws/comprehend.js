@@ -7,7 +7,12 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
   util_utf8_node.fromUtf8
 );
-const comprehendMedical = new ComprehendMedical({ region: 'us-west-2' });
+
+const comprehendMedical = new ComprehendMedical({ 
+  region: 'us-west-2', 
+  accessKeyId: process.env.AccessKeyId,
+  secretAccessKey: process.env.SecretAccessKey
+});
 
 const getEntities = async (text) => {
   if (text === undefined || text.replace(/\s/g, '') === '') return [];
