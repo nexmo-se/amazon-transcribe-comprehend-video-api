@@ -48,6 +48,18 @@ const detectICD10CM = async (text) => {
   else return resp.Entities;
 };
 
+const detectSNOMEDCT = async(text) => {
+  if (text === undefined || text.replace(/\s/g, '') === '') return [];
+
+  const resp = await comprehendMedical.inferSNOMEDCT({ Text: text }).promise();
+  console.log('inferSNOMEDCT', resp.Entities);
+  if (resp.Entities && resp.Entities.length) {
+    const entities = sortConcepts(resp.Entities, 'SNOMEDCTConcepts');
+    return entities
+  }
+  else return resp.Entities;
+}
+
 const sortConcepts = (rawEntities, conceptAttribute) => rawEntities.map((entity) => {
     if (entity[conceptAttribute].length === 0) return entity;
     const sortedConcepts = sortByScoreDescending(entity[conceptAttribute]);
