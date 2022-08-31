@@ -53,10 +53,10 @@ export function useSession({ container }) {
           height: '100%',
           fitMode: 'contain',
           style: {
-            buttonDisplayMode: 'off',
+            buttonDisplayMode: 'on',
             nameDisplayMode: 'on',
           },
-          showControls: false,
+          showControls: true,
           subscribeToVideo: shouldSubscribeToVideo(stream.name),
           // subscribeToAudio: shouldSubscribeToVideo(stream.name),
           // subscribeToAudio: !isExperienceComposer(),

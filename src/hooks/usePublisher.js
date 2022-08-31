@@ -69,14 +69,13 @@ export function usePublisher() {
         name: preferences.name,
         publishVideo: true,
         publishAudio: true,
-        // style: {
-        //   buttonDisplayMode: 'off',
-        //   nameDisplayMode: 'on',
-        // },
-
+        style: {
+          buttonDisplayMode: 'on',
+          nameDisplayMode: 'on',
+        },
         insertMode: 'append',
         // name: 'Javi',
-        showControls: false,
+        showControls: true,
         fitMode: 'contain',
       });
       console.log('usePublisher finalPublisherOptions', finalPublisherOptions);
