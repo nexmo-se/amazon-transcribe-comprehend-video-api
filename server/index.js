@@ -42,7 +42,6 @@ app.use(function (req, res, next) {
 app.get('/session/:room', async (req, res) => {
   try {
     const { room: roomName } = req.params;
-    // start_transcription(roomName);
     // const localId = userId++;
     const role = req.query.role !== undefined ? req.query.role : 'test';
     if (sessions[roomName]) {
@@ -78,14 +77,15 @@ app.get('/session/:room', async (req, res) => {
 app.post('/startStreaming', async (req, res) => {
   try {
     console.log('someone wants to stream');
-    const { streamId, sessionId } = req.body;
+    const { streamId, sessionId, specialty } = req.body;
     const roomName = app.get('roomName-' + sessionId);
-    console.log(streamId, sessionId, roomName);
-    
+    console.log(roomName, specialty, streamId, sessionId);
+
     await transcribe.start_transcription({
       roomName,
       sessionId, 
-      streamId
+      streamId, 
+      specialty
     }, comprehend.print_result);
 
     const response = await opentok.startStreamer(streamId, sessionId);

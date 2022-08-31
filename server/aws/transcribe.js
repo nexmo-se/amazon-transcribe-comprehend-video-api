@@ -12,9 +12,10 @@ const aws_sockets = new Map();
 
 const awsRegion = 'us-west-2';
 
-function create_presigned_url(room) {
+function create_presigned_url(room, specialty) {
   let endpoint = 'transcribestreaming.' + awsRegion + '.amazonaws.com:8443';
-
+  specialty = specialty? specialty: 'PRIMARYCARE';
+  
   return v4.createPresignedURL(
     'GET',
     endpoint,
@@ -27,7 +28,7 @@ function create_presigned_url(room) {
       region: 'us-west-2',
       protocol: 'wss',
       expires: 300,
-      query: `language-code=en-US&media-encoding=pcm&sample-rate=16000&room=${room}&specialty=PRIMARYCARE&type=DICTATION`,
+      query: `language-code=en-US&media-encoding=pcm&sample-rate=16000&room=${room}&specialty=${specialty}&type=DICTATION`,
     }
   );
 }
@@ -36,7 +37,7 @@ async function connect_to_transcribe_web_socket(presignedUrl, {sessionId, stream
   console.log('Opening WS Connection', presignedUrl);
 
   try {
-    aws_socket = new WebSocket(presignedUrl);
+    const aws_socket = new WebSocket(presignedUrl);
 
     aws_socket.binaryType = 'arraybuffer';
     aws_socket.uuid = streamId;
@@ -69,9 +70,9 @@ async function connect_to_transcribe_web_socket(presignedUrl, {sessionId, stream
   }
 }
 
-const start_transcription = async ({roomName, sessionId, streamId}, handleMessage) => {
+const start_transcription = async ({roomName, sessionId, streamId, specialty}, handleMessage) => {
   try {
-    const url = create_presigned_url(roomName);
+    const url = create_presigned_url(roomName, specialty);
 
     await connect_to_transcribe_web_socket(url, {sessionId, streamId}, handleMessage);
   } catch (e) {

@@ -27,7 +27,8 @@ export function usePublisher() {
       console.log(sessionId);
       setSessionId(sessionId);
       // setConnectionIdFromStreamer('124');
-      startTranslation(stream.id, sessionId)
+      console.log({roomName, specialty: localStorage.getItem('specialty')})
+      startTranslation(stream.id, sessionId, localStorage.getItem('specialty'))
         .then((data) => {
           console.log(data.data);
           console.log('setting connectionId ' + data.data.connectionId);
@@ -66,7 +67,7 @@ export function usePublisher() {
         width: '100%',
         height: '100%',
         name: preferences.name,
-        publishVideo: false,
+        publishVideo: true,
         publishAudio: true,
         // style: {
         //   buttonDisplayMode: 'off',

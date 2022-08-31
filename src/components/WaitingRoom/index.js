@@ -30,6 +30,7 @@ export default function WaitingRoom() {
   let [audioDevice, setAudioDevice] = useState('');
   let [videoDevice, setVideoDevice] = useState('');
   let [audioOutputDevice, setAudioOutputDevice] = useState('');
+  const [specialty, setSpecialty] = useState('PRIMARYCARE');
   const [roomName, setRoomName] = useState('');
   const [userName, setUserName] = useState('');
   const [isRoomNameInvalid, setIsRoomNameInvalid] = useState(false);
@@ -98,6 +99,7 @@ export default function WaitingRoom() {
   const handleJoinClick = () => {
     if (validateForm()) {
       localStorage.setItem('username', userName);
+      localStorage.setItem('specialty', specialty);
       push(`room/${roomName}`);
     }
   };
@@ -213,9 +215,28 @@ export default function WaitingRoom() {
       >
         <div className={classes.waitingRoomVideoPreview} >
           <form className={classes.form} noValidate>
+            <FormControl fullWidth > 
+              <InputLabel id="specialty-select-label">
+              Medical Specialty
+              </InputLabel>
+              <Select
+                size="small"
+                labelId="specialty-select-label"
+                id="specialty-select"
+                name="specialty"
+                value={specialty}
+                onChange={e => setSpecialty(e.target.value)}
+              >
+                {['PRIMARYCARE', 'CARDIOLOGY', 'NEUROLOGY', 'ONCOLOGY', 'RADIOLOGY', 'UROLOGY']
+                  .map((value, key) => (
+                  <MenuItem key={key} value={value}>{value}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
+              size="small"
               variant="outlined"
-              margin="normal"
+              margin="dense"
               required
               fullWidth
               id="room-name"
@@ -224,14 +245,15 @@ export default function WaitingRoom() {
               autoComplete="Room Name"
               error={isRoomNameInvalid}
               autoFocus
-              helperText={roomName === '' ? 'Empty Field' : ' '}
+              // helperText={roomName === '' ? 'Empty Field' : ' '}
               value={roomName}
               onChange={onChangeRoomName}
               onKeyDown={onKeyDown}
             />
             <TextField
+              size="small"
               variant="outlined"
-              margin="normal"
+              margin="none"
               fullWidth
               id="publisher-name"
               label="Name"
@@ -239,7 +261,7 @@ export default function WaitingRoom() {
               error={isUserNameInvalid}
               required
               autoComplete="Name"
-              helperText={userName === '' ? 'Empty Field' : ' '}
+              // helperText={userName === '' ? 'Empty Field' : ' '}
               value={userName}
               onChange={onChangeParticipantName}
               onKeyDown={onKeyDown}
@@ -247,7 +269,7 @@ export default function WaitingRoom() {
           </form>
           <div className={classes.deviceContainer}>
             <>
-              <FormControl>
+              <FormControl margin="dense">
                 <InputLabel id="demo-simple-select-label">
                   Select Audio Source
                 </InputLabel>
@@ -266,7 +288,7 @@ export default function WaitingRoom() {
                 </Select>
               </FormControl>
 
-              <FormControl>
+              <FormControl margin="dense">
                 <InputLabel id="video">Select Audio Output</InputLabel>
                 {deviceInfo.audioOutputDevices && (
                   <Select
@@ -285,7 +307,7 @@ export default function WaitingRoom() {
                 )}
               </FormControl>
 
-              <FormControl>
+              <FormControl margin="dense">
                 <InputLabel id="video">Select Video Source</InputLabel>
                 {deviceInfo.videoInputDevices && (
                   <Select

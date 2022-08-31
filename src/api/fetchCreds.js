@@ -15,10 +15,11 @@ export const getCredentials = async (roomName) => {
 export const getVirtualViewerCredentials = async (roomName) => {
   return axios.get(`${API_URL}/session/${roomName}?role=virtual`);
 };
-export const startTranslation = async (streamId, sessionId) => {
+export const startTranslation = async (streamId, sessionId, specialty) => {
   return axios.post(`${API_URL}/startStreaming`, {
     streamId,
     sessionId,
+    specialty
   });
 };
 

@@ -82,7 +82,7 @@ function EntitiesList({ listOfEntities, entity }) {
           </ListItem>
           <Collapse in={true} timeout="auto" unmountOnExit sx={{pl:2}}>
           <List component="div" disablePadding>
-          {e.concepts?
+          {e.concepts && e.concepts.length > 0?
             <Select value='0' size="small">
               {e.concepts.map((_e, _i) => 
                 <MenuItem key={`item-${i}-${_i}`} value={_i} >
