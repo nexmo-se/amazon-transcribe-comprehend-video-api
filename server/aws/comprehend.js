@@ -76,11 +76,9 @@ const getRoomFromUrl = (ws) => {
 //// Credentials should move to envs or use iam role
 
 const print_result = async (message) => {
-  const wsUrl = message.target._url;
   const streamId = message.target.uuid;
   const sessionToSignal = message.target.sessionId;
-  //const room = getRoomFromUrl(wsUrl);
-  //const sessionToSignal = sessions[room].session;
+  const streamName = message.target.streamName;
 
   let messageWrapper = eventStreamMarshaller.unmarshall(
     Buffer.from(message.data)
@@ -98,7 +96,10 @@ const print_result = async (message) => {
     try {
       opentok.signal(
         sessionToSignal,
-        Results.Alternatives[0].Transcript,
+        {
+          text: Results.Alternatives[0].Transcript,
+          speaker: streamName
+        },
         'captions'
       );
       const medEntities = await getEntities(Results.Alternatives[0].Transcript);

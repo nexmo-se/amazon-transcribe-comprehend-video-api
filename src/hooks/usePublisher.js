@@ -28,7 +28,7 @@ export function usePublisher() {
       setSessionId(sessionId);
       // setConnectionIdFromStreamer('124');
       console.log({roomName, specialty: localStorage.getItem('specialty')})
-      startTranslation(stream.id, sessionId, localStorage.getItem('specialty'))
+      startTranslation(stream.id, sessionId, stream.name, localStorage.getItem('specialty'))
         .then((data) => {
           console.log(data.data);
           console.log('setting connectionId ' + data.data.connectionId);
@@ -66,15 +66,15 @@ export function usePublisher() {
       const finalPublisherOptions = Object.assign({}, publisherOptions, {
         width: '100%',
         height: '100%',
-        name: preferences.name,
+        //name: preferences.name,
+        name: localStorage.getItem('username'),
         publishVideo: true,
         publishAudio: true,
         style: {
           buttonDisplayMode: 'on',
-          nameDisplayMode: 'on',
+          nameDisplayMode: 'off',
         },
         insertMode: 'append',
-        // name: 'Javi',
         showControls: true,
         fitMode: 'contain',
       });

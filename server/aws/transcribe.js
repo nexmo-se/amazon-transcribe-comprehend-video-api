@@ -33,7 +33,7 @@ function create_presigned_url(room, specialty) {
   );
 }
 
-async function connect_to_transcribe_web_socket(presignedUrl, {sessionId, streamId}, handleMessage) {
+async function connect_to_transcribe_web_socket(presignedUrl, {sessionId, streamId, streamName}, handleMessage) {
   console.log('Opening WS Connection', presignedUrl);
 
   try {
@@ -42,6 +42,7 @@ async function connect_to_transcribe_web_socket(presignedUrl, {sessionId, stream
     aws_socket.binaryType = 'arraybuffer';
     aws_socket.uuid = streamId;
     aws_socket.sessionId = sessionId;
+    aws_socket.streamName = streamName;
 
     aws_socket.onopen = function () {
       console.log('WS Connection Open');
@@ -70,11 +71,11 @@ async function connect_to_transcribe_web_socket(presignedUrl, {sessionId, stream
   }
 }
 
-const start_transcription = async ({roomName, sessionId, streamId, specialty}, handleMessage) => {
+const start_transcription = async ({roomName, sessionId, streamId, streamName, specialty}, handleMessage) => {
   try {
     const url = create_presigned_url(roomName, specialty);
 
-    await connect_to_transcribe_web_socket(url, {sessionId, streamId}, handleMessage);
+    await connect_to_transcribe_web_socket(url, {sessionId, streamId, streamName}, handleMessage);
   } catch (e) {
     console.log(e);
   }
