@@ -21,47 +21,51 @@ const getEntities = async (text) => {
     .detectEntitiesV2({ Text: text })
     .promise();
   console.log(resp.Entities);
-  return resp.Entities;
+  if (resp.Entities && resp.Entities.length) {
+    const entities = filterByScore(resp.Entities);
+    return entities
+  }
+  else return resp.Entities;
 };
 
 const detectRxNorm = async (text) => {
   if (text === undefined || text.replace(/\s/g, '') === '') return [];
-
   const resp = await comprehendMedical.inferRxNorm({ Text: text }).promise();
   //console.log('inferRxNorm', resp.Entities);
   if (resp.Entities && resp.Entities.length) {
-    const entities = sortConcepts(resp.Entities, 'RxNormConcepts');
-    return entities
+    const entities = filterByScore(resp.Entities);
+    return sortConcepts(entities, 'RxNormConcepts');
   }
   else return resp.Entities;
 };
 
 const detectICD10CM = async (text) => {
   if (text === undefined || text.replace(/\s/g, '') === '') return [];
-
   const resp = await comprehendMedical.inferICD10CM({ Text: text }).promise();
   //console.log('inferICD10CM', resp.Entities);
   if (resp.Entities && resp.Entities.length) {
-    const entities = sortConcepts(resp.Entities, 'ICD10CMConcepts');
-    return entities
+    const entities = filterByScore(resp.Entities);
+    return sortConcepts(entities, 'ICD10CMConcepts');
   }
   else return resp.Entities;
 };
 
 const detectSNOMEDCT = async(text) => {
   if (text === undefined || text.replace(/\s/g, '') === '') return [];
-
   const resp = await comprehendMedical.inferSNOMEDCT({ Text: text }).promise();
-  console.log('inferSNOMEDCT', resp.Entities);
+  //('inferSNOMEDCT', resp.Entities);
   if (resp.Entities && resp.Entities.length) {
-    const entities = sortConcepts(resp.Entities, 'SNOMEDCTConcepts');
-    return entities
+    const entities = filterByScore(resp.Entities);
+    return sortConcepts(entities, 'SNOMEDCTConcepts');
   }
   else return resp.Entities;
 }
 
+const filterByScore = (items) => [...items].filter((item) => item.Score && (item.Score - process.env.ScoreThreshold > 0));
+
 const sortConcepts = (rawEntities, conceptAttribute) => rawEntities.map((entity) => {
     if (entity[conceptAttribute].length === 0) return entity;
+    entity[conceptAttribute] = filterByScore(entity[conceptAttribute]);
     const sortedConcepts = sortByScoreDescending(entity[conceptAttribute]);
     return { ...entity, [conceptAttribute]: sortedConcepts };
   });
@@ -92,7 +96,7 @@ const print_result = async (message) => {
 
   if (Results && Results.IsPartial) {
   } else if (Results && !Results.IsPartial) {
-    console.log(Results);
+    //console.log(Results);
     try {
       opentok.signal(
         sessionToSignal,
@@ -106,10 +110,10 @@ const print_result = async (message) => {
       if (medEntities) {
         if (
           medEntities[0]?.Category === 'ANATOMY' ||
-          medEntities[0]?.Category === 'PROTECTED_HEALTH_INFORMATION'
+          medEntities[0]?.Category === 'PROTECTED_HEALTH_INFORMATION' ||
+          medEntities[0]?.Category === 'TEST_TREATMENT_PROCEDURE'
         ) {
           const medEntitiesString = JSON.stringify(medEntities);
-
           opentok.signal(sessionToSignal, medEntitiesString, 'medicalEntities');
         }
 

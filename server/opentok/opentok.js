@@ -32,7 +32,7 @@ const createSessionandToken = (session, role) => {
 
 const signal = (sessionId, captions, type) => {
   return new Promise((res, rej) => {
-    console.log(captions + ' being sent');
+    console.log(JSON.stringify(captions), 'being sent');
     opentok.signal(
       sessionId,
       null,

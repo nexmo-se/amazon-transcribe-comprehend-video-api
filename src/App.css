@@ -60,9 +60,7 @@ body {
 
 .videoContainer {
   flex: 10 1 auto;
-
-  /* height: 100vh; */
-  max-height: 80vh;
+  height: 100vh;
   align-self: stretch;
   display: -ms-flexbox;
   display: -webkit-flex;
@@ -73,14 +71,17 @@ body {
   align-content: center;
   /* align-items: center; */
   display: flex;
+  overflow: hidden;
+  overflow-y: scroll;
 }
 
 .entityType {
   /* margin: auto; */
   margin-left: 10px;
   padding-right: 5px;
-  max-height: 35%;
+  /* max-height: 20%; */
   overflow: hidden;
+  overflow-y: scroll;
   clear: both;
 }
 
@@ -132,6 +133,7 @@ body {
   /* justify-content: center; */
   /* align-items: flex-start;
   align-content: flex-start; */
+  overflow: hidden;
   overflow-y: scroll;
 }
 .videos {

@@ -38,6 +38,7 @@ function Main() {
     medicalConditions,
     piiEntities,
     anatomyEntities,
+    ttpEntities,
   } = useSignalling({
     session: session.current,
   });
@@ -143,7 +144,13 @@ function Main() {
           ref={videoContainer}
           id="video-container"
         ></div>
-        <div className="medicalAnalysis">
+        <div className="medicalAnalysis" sx={{
+            display: "flex",
+            flexDirection: "column",
+            maxHeight: 820,
+            overflow: "hidden",
+            overflowY: "scroll"
+        }}>
           <div className="entityType">
             <EntitiesList
               listOfEntities={medicalConditions}
@@ -151,21 +158,16 @@ function Main() {
             />
           </div>
           <div className="entityType">
-            {medication ? (
-              <EntitiesList listOfEntities={medication} entity={'Medication'} />
-            ) : null}
+            <EntitiesList listOfEntities={medication} entity={'Medication'} />
           </div>
-          {/* <div className="entityType">
-            <EntitiesList
-              listOfEntities={anatomyEntities}
-              entity={'Anatomy'}
-            />
-          </div> */}
           <div className="entityType">
             <EntitiesList listOfEntities={anatomyEntities} entity={'Anatomy'} />
           </div>
           <div className="entityType">
             <EntitiesList listOfEntities={piiEntities} entity={'PII'} />
+          </div>
+          <div className="entityType">
+            <EntitiesList listOfEntities={ttpEntities} entity={'Test Treatment Procedures'} />
           </div>
         </div>
       </div>

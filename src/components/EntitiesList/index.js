@@ -16,6 +16,7 @@ import MedicationIcon from '@mui/icons-material/Medication';
 import BloodtypeIcon from '@mui/icons-material/Bloodtype';
 import Typography from '@mui/material/Typography';
 import ContactPageIcon from '@mui/icons-material/ContactPage';
+import MonitorHeart from '@mui/icons-material/MonitorHeart';
 
 function EntitiesList({ listOfEntities, entity }) {
   const getIcon = (entity) => {
@@ -30,6 +31,8 @@ function EntitiesList({ listOfEntities, entity }) {
         return <VaccinesIcon />;
       case 'PII':
         return <ContactPageIcon />;
+      case 'Test Treatment Procedures':
+        return <MonitorHeart />;
       default:
         return;
     }
@@ -47,6 +50,8 @@ function EntitiesList({ listOfEntities, entity }) {
         return '#4a9';
       case 'PII':
         return '#999';
+      case 'Test Treatment Procedures':
+        return '#4a9';
       default:
         return;
     }
@@ -70,7 +75,7 @@ function EntitiesList({ listOfEntities, entity }) {
       pl:2,
       display: "flex",
       flexDirection: "column",
-      maxHeight: 120,
+      maxHeight: 100,
       overflow: "hidden",
       overflowY: "scroll",
       bgcolor: 'background.paper'
@@ -86,7 +91,7 @@ function EntitiesList({ listOfEntities, entity }) {
             <Select value='0' size="small">
               {e.concepts.map((_e, _i) => 
                 <MenuItem key={`item-${i}-${_i}`} value={_i} >
-                  {`${_e.Code} | ${_e.Description} | ${_e.Score}`}
+                  {`${_e.Code} | ${_e.Description} | ${ Math.floor(_e.Score * 10000)/100 }%`}
                 </MenuItem>
                 )}
             </Select>

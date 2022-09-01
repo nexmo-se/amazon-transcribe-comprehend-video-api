@@ -12,6 +12,7 @@ export function useSignalling({ session }) {
   const [medicalConditions, setMedicalConditionsEntities] = useState([]);
   const [anatomyEntities, setAnatomyEntities] = useState([]);
   const [piiEntities, setPiiEntities] = useState([]);
+  const [ttpEntities, setTtpEntities] = useState([]);
   //   const { user } = useContext(UserContext);
 
   const signal = useCallback(
@@ -56,10 +57,12 @@ export function useSignalling({ session }) {
     //console.log(dataJson)
     if (dataJson.length) {
       dataJson.forEach((entity) => {
-        setMedicationEntities((prev) => [...prev, {
-          Text: `${entity.Text} | ${entity.Score}`, 
-          concepts: entity.RxNormConcepts? entity.RxNormConcepts : []
-        }]);
+        if (entity?.Category === 'MEDICATION') {
+          setMedicationEntities((prev) => [{
+            Text: `${entity.Text} | ${ Math.floor(entity.Score * 10000)/100 }%`, 
+            concepts: entity.RxNormConcepts? entity.RxNormConcepts : []
+          }, ...prev]);
+        }
       })
     }
   }, []);
@@ -70,10 +73,12 @@ export function useSignalling({ session }) {
     // setMedicalConditionsEntities((prev) => [...prev, medString]);
     if (dataJson.length) {
       dataJson.forEach((entity) => {
-        setMedicalConditionsEntities((prev) => [...prev, {
-          Text: `${entity.Text} | ${entity.Score}`, 
-          concepts: entity.ICD10CMConcepts? entity.ICD10CMConcepts : []
-        }]);
+        if (entity?.Category === 'MEDICAL_CONDITION') {
+          setMedicalConditionsEntities((prev) => [{
+            Text: `${entity.Text} | ${ Math.floor(entity.Score * 10000)/100 }%`, 
+            concepts: entity.ICD10CMConcepts? entity.ICD10CMConcepts : []
+          }, ...prev]);
+        }
       })
     }
   }, []);
@@ -83,17 +88,28 @@ export function useSignalling({ session }) {
     if (dataJson.length) {
       dataJson.forEach((entity) => {
         if (entity?.Category === 'ANATOMY')
-          setAnatomyEntities((prev) => [...prev, entity]);
+          setAnatomyEntities((prev) => [{
+            Text: `${entity.Type} | ${entity.Text}`, 
+          }, ...prev]);
 
         if (entity?.Category === 'PROTECTED_HEALTH_INFORMATION')
-          setPiiEntities((prev) => [...prev, entity]);
+          setPiiEntities((prev) => [{
+            Text: `${entity.Type} | ${entity.Text}`,
+          }, ...prev]);
+
+        if (entity?.Category === 'TEST_TREATMENT_PROCEDURE') {
+          var attribute = entity.Attributes && entity.Attributes[0]? ' | ' + entity.Attributes[0].Text : '';
+          setTtpEntities((prev) => [{
+            Text: entity.Text + attribute, 
+          }, ...prev]);
+        }
       });
     }
   }, []);
 
   const messageListener = useCallback(({ data, from }) => {
     console.log('received message');
-    console.log(data);
+    console.log(JSON.stringify(data));
     setMessages(data);
   }, []);
 
@@ -132,5 +148,6 @@ export function useSignalling({ session }) {
     medication,
     piiEntities,
     anatomyEntities,
+    ttpEntities,
   };
 }
