@@ -156,8 +156,6 @@ export default function WaitingRoom() {
 
   useEffect(() => {
     if (publisher && pubInitialised && deviceInfo) {
-      publisher.on('accessAllowed', (e) => {
-
         const currentAudioDevice = publisher.getAudioSource();
         setAudioDevice(
           getSourceDeviceId(deviceInfo.audioInputDevices, currentAudioDevice)
@@ -167,12 +165,10 @@ export default function WaitingRoom() {
         setVideoDevice(
           getSourceDeviceId(deviceInfo.videoInputDevices, currentVideoDevice?.track)
         );
-  
+
         OT.getActiveAudioOutputDevice().then((currentAudioOutputDevice) => {
           setAudioOutputDevice(currentAudioOutputDevice.deviceId);
         });
-
-      })
     }
   }, [
     deviceInfo,

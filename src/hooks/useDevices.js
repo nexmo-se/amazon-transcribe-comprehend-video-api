@@ -19,17 +19,18 @@ export default function useDevices() {
                     reject(err);
                 }
                 let audioOutputDevices = await OT.getAudioOutputDevices();
-                audioOutputDevices = audioOutputDevices.map((audiooutput) =>
-                    audiooutput.deviceId === 'default'
-                        ? { ...audiooutput, label: 'System Default' }
-                        : audiooutput
-                );
+                // audioOutputDevices = audioOutputDevices.map((audiooutput) =>
+                //     audiooutput.deviceId === 'default'
+                //         ? { ...audiooutput, label: 'System Default' }
+                //         : audiooutput
+                // );
                 const audioInputDevices = devices.filter(
                     (d) => d.kind.toLowerCase() === 'audioinput'
                 );
                 const videoInputDevices = devices.filter(
                     (d) => d.kind.toLowerCase() === 'videoinput'
                 );
+
                 setDeviceInfo({
                     audioInputDevices,
                     videoInputDevices,
@@ -41,12 +42,14 @@ export default function useDevices() {
 
     useEffect(() => {
         navigator.mediaDevices.addEventListener('devicechange', getDevices);
+
         getDevices();
 
         return () => {
             navigator.mediaDevices.removeEventListener('devicechange', getDevices);
         };
-    }, [getDevices]);
+
+    }, []);
 
     return { deviceInfo, getDevices };
 }

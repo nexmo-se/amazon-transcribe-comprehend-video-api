@@ -91,6 +91,8 @@ export function usePublisher() {
         }
       );
 
+      publisherRef.current.on('accessAllowed', getDevices);
+
       setPubInitialised(true);
 
       publisherRef.current.on('streamCreated', streamCreatedListener);
