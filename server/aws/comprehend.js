@@ -1,5 +1,7 @@
 const opentok = require('../opentok/opentok');
 
+process.env.ScoreThreshold = process.env.ScoreThreshold || 0.7
+
 const { ComprehendMedical } = require('aws-sdk');
 const marshaller = require('@aws-sdk/eventstream-marshaller');
 const util_utf8_node = require('@aws-sdk/util-utf8-node');
