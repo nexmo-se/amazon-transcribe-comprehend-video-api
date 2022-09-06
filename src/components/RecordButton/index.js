@@ -38,7 +38,7 @@ export default function RecordingButton({ classes, session }) {
         preferences.renderId = id;
         preferences.sessionId = sessionId;
         setRenderId(id);
-        setRecording(true);
+        // setRecording(true);
         setSessionId(sessionId);
       } else return;
     } catch (e) {
@@ -93,6 +93,21 @@ export default function RecordingButton({ classes, session }) {
       }
     } else return;
   };
+
+  useEffect(() => {
+    if (session) {
+      session.on('archiveStarted', () => {
+        setRecording(true);
+      });
+      session.on('archiveStopped', () => {
+        setRecording(false);
+      });
+    }
+    // return () => {
+    //   session.off('archiveStarted', () => {});
+    //   session.off('archiveStopped', () => {});
+    // };
+  });
 
   const handleRecordingStop = async (archiveId) => {
     try {
