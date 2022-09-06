@@ -21,23 +21,31 @@ export function usePublisher() {
 
   const streamCreatedListener = React.useCallback(
     ({ stream }) => {
-      console.log(stream);
-      preferences.streamId = stream.id;
-      const sessionId = stream.publisher.session.id;
-      console.log(sessionId);
-      setSessionId(sessionId);
-      // setConnectionIdFromStreamer('124');
-      console.log({roomName, specialty: localStorage.getItem('specialty')})
-      startTranslation(stream.id, sessionId, stream.name, localStorage.getItem('specialty'))
-        .then((data) => {
-          console.log(data.data);
-          console.log('setting connectionId ' + data.data.connectionId);
-          setConnectionIdFromStreamer(data.data.connectionId);
-        })
-        .catch((e) => console.log(e));
-      setIsPublishing(true);
+      if (stream.name !== 'EC') {
+        console.log(stream);
+        preferences.streamId = stream.id;
+        const sessionId = stream.publisher.session.id;
+        console.log(sessionId);
+        setSessionId(sessionId);
+
+        // setConnectionIdFromStreamer('124');
+        console.log({ roomName, specialty: localStorage.getItem('specialty') });
+        startTranslation(
+          stream.id,
+          sessionId,
+          stream.name,
+          localStorage.getItem('specialty')
+        )
+          .then((data) => {
+            console.log(data.data);
+            console.log('setting connectionId ' + data.data.connectionId);
+            setConnectionIdFromStreamer(data.data.connectionId);
+          })
+          .catch((e) => console.log(e));
+        setIsPublishing(true);
+      }
     },
-    [preferences]
+    [preferences, roomName]
   );
 
   const streamDestroyedListener = useCallback(({ stream }) => {
@@ -97,33 +105,29 @@ export function usePublisher() {
 
       publisherRef.current.on('streamCreated', streamCreatedListener);
       publisherRef.current.on('streamDestroyed', streamDestroyedListener);
-      // publisherRef.current.on('destroyed', () => {
-      //   console.log('publisherRef.current Destroyed');
-      // });
+      publisherRef.current.on('destroyed', () => {
+        publisherRef.current = null;
+        console.log(publisherRef);
+        console.log('publisherRef.current Destroyed');
+      });
+
+      return () => {
+        publisherRef.current.off('streamCreated', streamCreatedListener);
+        publisherRef.current.off('streamDestroyed', streamDestroyedListener);
+        publisherRef.current.off('destroyed', () => {});
+      };
     },
-    [preferences.name, streamCreatedListener, streamDestroyedListener]
+    [getDevices, streamCreatedListener, streamDestroyedListener]
   );
 
   const destroyPublisher = useCallback(() => {
     if (!publisherRef.current) {
       return;
     }
-    if (sessionId && connectionIdFromStream) {
+    if (publisherRef.current) {
       publisherRef.current.destroy();
     }
-    if (preferences.renderId && preferences.archiveId) {
-      stopRender(preferences.renderId).then((data) => console.log(data));
-      stopRecording(preferences.archiveId).then((data) => console.log(data));
-    }
-    publisherRef.current.on('destroyed', () => {
-      console.log('publisherRef.current Destroyed');
-    });
-  }, [
-    connectionIdFromStream,
-    preferences.archiveId,
-    preferences.renderId,
-    sessionId,
-  ]);
+  }, []);
 
   const publish = useCallback(
     ({ session, containerId, publisherOptions }) => {
@@ -153,13 +157,13 @@ export function usePublisher() {
 
   const unpublish = useCallback(
     ({ session }) => {
-      if (publisherRef.current && isPublishing) {
+      if (publisherRef.current && isPublishing && session) {
         session.unpublish(publisherRef.current);
         setIsPublishing(false);
         publisherRef.current = null;
       }
     },
-    [isPublishing, publisherRef]
+    [isPublishing]
   );
 
   return {

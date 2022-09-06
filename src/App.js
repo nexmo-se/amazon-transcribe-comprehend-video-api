@@ -51,9 +51,7 @@ const theme = () => {
 function App() {
   const [preferences, setPreferences] = useState({
     name: null,
-    defaultSettings: {
-
-    },
+    defaultSettings: {},
   });
   const preferencesValue = useMemo(
     () => ({ preferences, setPreferences }),
@@ -64,16 +62,17 @@ function App() {
       <Router>
         <UserContext.Provider value={preferencesValue}>
           <Switch>
-            <ProtectedRoute exact path="/room/:roomName" component={Wrapper} />
-            <Route exact path="/room/:roomName/:sessionId/end">
+            <Route exact path="/mta/:roomName/:sessionId/end">
               <EndCall />
             </Route>
+            <ProtectedRoute exact path="/room/:roomName" component={Wrapper} />
+
             {/* <Route path="/videorti/virtualviewer/:roomName">
               <VirtualView />
             </Route> */}
-            {/* <Route path="/videorti/recorder/:roomName">
+            <Route path="/videorti/recorder/:roomName">
               <VirtualView />
-            </Route> */}
+            </Route>
             <Route path="/">
               <WaitingRoom />
             </Route>

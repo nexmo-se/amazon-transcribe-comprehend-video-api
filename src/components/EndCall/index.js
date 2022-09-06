@@ -9,6 +9,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
+import { usePublisher } from '../../hooks/usePublisher';
 
 import styles from './styles';
 
@@ -18,10 +19,15 @@ export default function EndCall() {
   const classes = styles();
   const { sessionId } = useParams();
 
+  const { destroyPublisher } = usePublisher();
+
   const redirectNewMeeting = () => {
     push('/');
   };
   useEffect(() => {
+    destroyPublisher();
+    // if (sessionId !== 'undefined') {
+    console.log(sessionId);
     fetchRecordings(sessionId)
       .then((data) => {
         if (data.data) {
@@ -30,8 +36,16 @@ export default function EndCall() {
       })
       .catch((err) => {
         console.log(err);
+
+        setRecordings(null);
       });
-  }, [sessionId]);
+  }, [sessionId, destroyPublisher]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      window.OT.publishers.map((e) => e)[0].destroy();
+    }, 3000);
+  });
 
   return (
     <div className={classes.container}>

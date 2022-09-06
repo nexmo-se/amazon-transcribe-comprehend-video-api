@@ -13,6 +13,7 @@ import ToolBar from '../ToolBar';
 import { getVirtualViewerCredentials } from '../../api/fetchCreds';
 import { UserContext } from '../../context/UserContext';
 import { useSignalling } from '../../hooks/useSignalling';
+import EntitiesList from '../EntitiesList';
 
 function VirtualView() {
   let translationPlaying = useRef(false);
@@ -24,17 +25,23 @@ function VirtualView() {
   let { roomName } = useParams();
   const { preferences } = useContext(UserContext);
 
-  const ws = useRef(null);
-  const ctx = useRef(null);
-  const gainNodeRef = useRef(null);
-  const context = useRef(null);
-
-  const [captions, setCaptions] = useState('Say something...');
-  const [originalCaptions, setOriginalCaptions] = useState('');
+  const [captions, setCaptions] = useState({
+    text: 'Say something...',
+    speaker: '',
+  });
   const { session, createSession, connected, streams } = useSession({
     container: videoContainer,
   });
-  const { messages, sendMessage } = useSignalling({
+
+  const {
+    messages,
+    sendMessage,
+    medication,
+    medicalConditions,
+    piiEntities,
+    anatomyEntities,
+    ttpEntities,
+  } = useSignalling({
     session: session.current,
   });
 
@@ -66,139 +73,56 @@ function VirtualView() {
     }
   }, [createSession, credentials]);
 
-  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-
-  const handleAudioData = useCallback((decodedData) => {
-    console.log(
-      translationPlaying ? 'theres something playing' : 'free to play'
-    );
-
-    if (translationPlaying.current) {
-      console.log('waiting ' + timePlayingLeft.current + ' seconds');
-      wait(timePlayingLeft.current * 1000).then(() => {
-        const source = ctx.current.createBufferSource();
-        source.buffer = decodedData;
-        source.connect(ctx.current.destination);
-        source.start();
-        // setTranslationPlaying(true);
-        translationPlaying.current = true;
-        source.onended = () => {
-          console.log('Finished playing');
-          translationPlaying.current = false;
-          //setTranslationPlaying(false);
-        };
-      });
-    } else {
-      const source = ctx.current.createBufferSource();
-      source.buffer = decodedData;
-      timePlayingLeft.current = decodedData.duration;
-      // setTime(decodedData.duration);
-      source.connect(ctx.current.destination);
-      source.start();
-      console.log(source);
-      translationPlaying.current = true;
-      //setTranslationPlaying(true);
-      source.onended = () => {
-        console.log('Finished playing');
-        //setTranslationPlaying(false);
-        translationPlaying.current = false;
-      };
-    }
-    // });
-  }, []);
-
-  const startListeners = useCallback(() => {
-    if (ws.current) {
-      context.current = new AudioContext();
-      ws.current.onmessage = (event) => {
-        if (typeof event.data === 'string') {
-          let info = JSON.parse(event.data);
-          const streamId = info.id;
-          if (translationPlaying.current) {
-            wait(timePlayingLeft.current * 1000).then(() => {
-              console.log('waiting');
-              // if (doesWantOriginalCaptions(streamId)) {
-              setOriginalCaptions(`Original : ${info.original}`);
-              // }
-              setCaptions(`Translated: ${info.translated}`);
-              // sendMessage(info.translated);
-            });
-          } else {
-            // if (doesWantOriginalCaptions(streamId)) {
-            setOriginalCaptions(`Original : ${info.original}`);
-            // }
-            setCaptions(`Translated: ${info.translated}`);
-          }
-        } else {
-          const timestamp = new Intl.DateTimeFormat('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          }).format(Date.now());
-          console.log('Received audio at ' + timestamp);
-          // sendMessage(event.data);
-
-          context.current
-            .decodeAudioData(event.data)
-            .then(function (decodedData) {
-              handleAudioData(decodedData);
-            });
-        }
-      };
-      // Fired when the WebSocket closes unexpectedly due to an error or lost connetion
-      ws.current.onerror = (err) => {
-        console.error(err);
-      };
-      // Fired when the WebSocket connection has been closed
-      ws.current.onclose = (event) => {
-        console.info('Connection to websocket closed');
-        console.log(event);
-      };
-      ws.current.onopen = (event) => {
-        console.log('Connected');
-
-        // ws.current.send(
-        //   `{"from":"${preferences.defaultSettings.originLanguage}", "to":"${preferences.defaultSettings.destinationLanguage}", "room":"${roomName}","user":"${preferences.streamId}", "digitalHuman":"${preferences.digitalHuman}"}`
-        // );
-      };
-    }
-  }, []);
-
   useEffect(() => {
-    let AudioContext = window.AudioContext;
-    ctx.current = new AudioContext();
-    let wsUrl = `ws:localhost:5000/virtualviewers/${roomName}`;
-
-    if (process.env.NODE_ENV === 'production') {
-      wsUrl = `${process.env.REACT_APP_WS_URL_PRODUCTION}/virtualviewers/${roomName}`;
-    } else if (process.env.REACT_APP_SERVER_PORT) {
-      wsUrl = `ws:localhost:${process.env.REACT_APP_SERVER_PORT}/virtualviewers/${roomName}`;
-    }
-    wsUrl = wsUrl + encodeURI('?userid=virtualviewer' + '&room=' + roomName);
-    console.log('main WS: ' + wsUrl);
-
-    ws.current = new WebSocket(wsUrl);
-    ws.current.binaryType = 'arraybuffer';
-    startListeners();
-  }, [startListeners, roomName, preferences.streamId]);
+    setCaptions(messages);
+  }, [messages]);
 
   const classes = styles();
   return (
-    <div className={classes.flex}>
-      <Header />
+    <>
       <div className="videoContainer">
         <div
           className={'video'}
           ref={videoContainer}
           id="video-container"
         ></div>
+        <div
+          className="medicalAnalysis"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            maxHeight: 820,
+            overflow: 'hidden',
+            overflowY: 'scroll',
+          }}
+        >
+          <div className="entityType">
+            <EntitiesList
+              listOfEntities={medicalConditions}
+              entity={'Medical Condition'}
+            />
+          </div>
+          <div className="entityType">
+            <EntitiesList listOfEntities={medication} entity={'Medication'} />
+          </div>
+          <div className="entityType">
+            <EntitiesList listOfEntities={anatomyEntities} entity={'Anatomy'} />
+          </div>
+          <div className="entityType">
+            <EntitiesList listOfEntities={piiEntities} entity={'PII'} />
+          </div>
+          <div className="entityType">
+            <EntitiesList
+              listOfEntities={ttpEntities}
+              entity={'Test Treatment Procedures'}
+            />
+          </div>
+        </div>
       </div>
-      <div className="original"> {originalCaptions}</div>
-      <div className="original"> {captions}</div>
-    </div>
+      <div className="original">
+        {captions ? `${captions.speaker}: ${captions.text}` : ''}
+      </div>
+    </>
   );
 }
 

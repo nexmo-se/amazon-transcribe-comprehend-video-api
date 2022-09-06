@@ -56,6 +56,7 @@ const createArchive = (session) => {
       session,
       {
         resolution: '1280x720',
+        streamMode: 'manual',
       },
       function (error, archive) {
         if (error) {
@@ -66,6 +67,15 @@ const createArchive = (session) => {
         }
       }
     );
+  });
+};
+
+const addStreamToArchive = (archiveId, streamId) => {
+  return new Promise((res, rej) => {
+    opentok.addArchiveStream(archiveId, streamId, {}, (err, resp) => {
+      if (err) rej(err);
+      else res(resp);
+    });
   });
 };
 
@@ -112,12 +122,12 @@ const createRender = async (roomName, sessionId) => {
     // const { token, apiKey } = await getCredentials(sessionId);
     const { token } = generateToken(sessionId, 'EC');
     const data = JSON.stringify({
-      url: `${process.env.REACT_APP_API_URL_PRODUCTION}/videorti/virtualviewer/${roomName}`,
+      url: `${process.env.REACT_APP_API_URL_PRODUCTION}/videorti/recorder/${roomName}`,
       sessionId: sessionId,
       token: token,
       projectId: apiKey,
       maxDuration: 300,
-      // statusCallbackUrl: `${process.env.REACT_APP_API_URL_PRODUCTION}/render/status`,
+      statusCallbackUrl: `${process.env.REACT_APP_API_URL_PRODUCTION}/render/status`,
       properties: {
         name: 'EC',
       },
@@ -186,7 +196,7 @@ const generateToken = (sessionId, role) => {
   const token = role
     ? opentok.generateToken(sessionId, { data: role })
     : opentok.generateToken(sessionId);
-    return { token: token, apiKey: apiKey };
+  return { token: token, apiKey: apiKey };
 };
 
 const initiateArchiving = async (sessionId) => {
@@ -265,5 +275,6 @@ module.exports = {
   deleteRender,
   signal,
   forceDisconnect,
-  startStreamer
+  startStreamer,
+  addStreamToArchive,
 };

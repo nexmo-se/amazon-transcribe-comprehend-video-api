@@ -30,18 +30,12 @@ export function useSession({ container }) {
     return queryString.split('/')[2] === 'recorder';
   };
 
-  const shouldSubscribeToVideo = (name) => {
+  const shouldSubscribe = (name) => {
     // if (name.split('_')[1] === 'EC') return false;
     return name !== 'EC';
     // if (name === 'EC') return false;
     // else return true;
   };
-
-  const shouldSubscribeToAudio = React.useCallback((name) => {
-    if (isExperienceComposer()) return false;
-    if (isRecorder()) return true;
-    else return true;
-  }, []);
 
   const subscribe = React.useCallback(
     (stream, options = {}) => {
@@ -57,28 +51,26 @@ export function useSession({ container }) {
             nameDisplayMode: 'on',
           },
           showControls: true,
-          subscribeToVideo: shouldSubscribeToVideo(stream.name),
+          subscribeToVideo: shouldSubscribe(stream.name),
           // subscribeToAudio: shouldSubscribeToVideo(stream.name),
           // subscribeToAudio: !isExperienceComposer(),
-          subscribeToAudio: shouldSubscribeToAudio(),
+          subscribeToAudio: shouldSubscribe(stream.name),
           //   isExperienceComposer() && stream.name === 'EC' ? false : true,
         });
         const subscriber = sessionRef.current.subscribe(
           stream,
-          shouldSubscribeToVideo(stream.name) ? container.current.id : null,
+          shouldSubscribe(stream.name) ? container.current.id : null,
           finalOptions
         );
       }
     },
-    [container, shouldSubscribeToAudio]
+    [container]
   );
 
   const onStreamCreated = useCallback(
     (event) => {
       console.log('stream created event ' + event.stream.name);
-      console.log(
-        ' subscribe to video ' + shouldSubscribeToVideo(event.stream.name)
-      );
+      console.log(' subscribe to video ' + shouldSubscribe(event.stream.name));
       console.log('is experience composer ' + isExperienceComposer());
 
       subscribe(event.stream);
@@ -98,9 +90,13 @@ export function useSession({ container }) {
     setNetworkStatus('reconnecting');
   }, []);
 
-  const onConnectionDestroyed = useCallback((event) => {
-    console.log(event);
-  }, []);
+  const onConnectionDestroyed = useCallback(
+    (event) => {
+      console.log(event);
+      if (container.current) container.current = null;
+    },
+    [container]
+  );
 
   const createSession = useCallback(
     ({ apiKey, sessionId, token }) => {

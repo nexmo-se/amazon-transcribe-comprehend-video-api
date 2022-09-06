@@ -4,9 +4,8 @@ import {
   stopRecording,
   render,
   stopRender,
+  addArchiveStream,
 } from '../../api/fetchRecording';
-
-import { fixChrome687574, stopRenderAndRecording } from '../../utils';
 
 import { useSignalling } from '../../hooks/useSignalling';
 
@@ -25,6 +24,7 @@ export default function RecordingButton({ classes, session }) {
   const { archiveId } = useSignalling({ session });
   const [isRecording, setRecording] = useState(false);
   const [renderId, setRenderId] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
   const localClasses = styles();
 
   const startRender = async (roomName) => {
@@ -36,8 +36,10 @@ export default function RecordingButton({ classes, session }) {
         // console.log(renderData.data);
         // setRenderId('12334');
         preferences.renderId = id;
+        preferences.sessionId = sessionId;
         setRenderId(id);
         setRecording(true);
+        setSessionId(sessionId);
       } else return;
     } catch (e) {
       console.log(e);
@@ -48,17 +50,19 @@ export default function RecordingButton({ classes, session }) {
     console.log('run preferences hook');
     if (
       renderId !== preferences.renderId ||
-      archiveId !== preferences.archiveId
+      archiveId !== preferences.archiveId ||
+      sessionId !== preferences.sessionId
     ) {
       if (renderId) {
         setPreferences({
           ...preferences,
           renderId: renderId,
           archiveId: archiveId,
+          sessionId: sessionId,
         });
       }
     }
-  }, [renderId, setPreferences, archiveId, preferences]);
+  }, [renderId, setPreferences, archiveId, preferences, sessionId]);
 
   useEffect(() => {
     if (preferences.recording !== isRecording) {
@@ -92,7 +96,7 @@ export default function RecordingButton({ classes, session }) {
 
   const handleRecordingStop = async (archiveId) => {
     try {
-      if (isRecording) {
+      if (isRecording && archiveId) {
         const data = await stopRecording(archiveId);
         console.log(data);
         if (data.status === 200 && data.data) {

@@ -7,7 +7,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField
+  TextField,
 } from '@material-ui/core';
 import { usePublisher } from '../../hooks/usePublisher';
 import { AudioSettings } from '../AudioSetting';
@@ -42,7 +42,7 @@ export default function WaitingRoom() {
     initPublisher,
     destroyPublisher,
     deviceInfo,
-    pubInitialised
+    pubInitialised,
   } = usePublisher();
 
   const handleAudioChange = React.useCallback((e) => {
@@ -84,8 +84,8 @@ export default function WaitingRoom() {
   );
 
   const validateForm = () => {
-    console.log("validateForm", userName);
-    console.log("validateForm", roomName);
+    console.log('validateForm', userName);
+    console.log('validateForm', roomName);
     if (userName === '') {
       setIsUserNameInvalid(true);
       return false;
@@ -135,7 +135,7 @@ export default function WaitingRoom() {
   useEffect(() => {
     const publisherOptions = {
       publishAudio: defaultLocalAudio,
-      publishVideo: defaultLocalVideo
+      publishVideo: defaultLocalVideo,
     };
     if (waitingRoomVideoContainer.current) {
       initPublisher(waitingRoomVideoContainer.current.id, publisherOptions);
@@ -156,19 +156,22 @@ export default function WaitingRoom() {
 
   useEffect(() => {
     if (publisher && pubInitialised && deviceInfo) {
-        const currentAudioDevice = publisher.getAudioSource();
-        setAudioDevice(
-          getSourceDeviceId(deviceInfo.audioInputDevices, currentAudioDevice)
-        );
+      const currentAudioDevice = publisher.getAudioSource();
+      setAudioDevice(
+        getSourceDeviceId(deviceInfo.audioInputDevices, currentAudioDevice)
+      );
 
-        const currentVideoDevice = publisher.getVideoSource();
-        setVideoDevice(
-          getSourceDeviceId(deviceInfo.videoInputDevices, currentVideoDevice?.track)
-        );
+      const currentVideoDevice = publisher.getVideoSource();
+      setVideoDevice(
+        getSourceDeviceId(
+          deviceInfo.videoInputDevices,
+          currentVideoDevice?.track
+        )
+      );
 
-        OT.getActiveAudioOutputDevice().then((currentAudioOutputDevice) => {
-          setAudioOutputDevice(currentAudioOutputDevice.deviceId);
-        });
+      OT.getActiveAudioOutputDevice().then((currentAudioOutputDevice) => {
+        setAudioOutputDevice(currentAudioOutputDevice.deviceId);
+      });
     }
   }, [
     deviceInfo,
@@ -176,14 +179,14 @@ export default function WaitingRoom() {
     setAudioDevice,
     setVideoDevice,
     setAudioOutputDevice,
-    pubInitialised
+    pubInitialised,
   ]);
 
-  useEffect(() => {
-    return () => {
-      destroyPublisher();
-    };
-  }, [destroyPublisher]);
+  // useEffect(() => {
+  //   return () => {
+  //     destroyPublisher();
+  //   };
+  // }, [destroyPublisher]);
 
   useEffect(() => {
     setPreferences({
@@ -192,7 +195,7 @@ export default function WaitingRoom() {
         publishVideo: localVideo,
         audioSource: localAudioSource,
         videoSource: localVideoSource,
-        audioOutput: localAudioOutput
+        audioOutput: localAudioOutput,
       },
     });
   }, [
@@ -201,19 +204,17 @@ export default function WaitingRoom() {
     setPreferences,
     localAudioSource,
     localVideoSource,
-    localAudioOutput
+    localAudioOutput,
   ]);
 
   return (
     <div className={classes.waitingRoomContainer}>
-      <div
-        className={classes.containerCenter}
-      >
-        <div className={classes.waitingRoomVideoPreview} >
+      <div className={classes.containerCenter}>
+        <div className={classes.waitingRoomVideoPreview}>
           <form className={classes.form} noValidate>
-            <FormControl fullWidth > 
+            <FormControl fullWidth>
               <InputLabel id="specialty-select-label">
-              Medical Specialty
+                Medical Specialty
               </InputLabel>
               <Select
                 size="small"
@@ -221,11 +222,19 @@ export default function WaitingRoom() {
                 id="specialty-select"
                 name="specialty"
                 value={specialty}
-                onChange={e => setSpecialty(e.target.value)}
+                onChange={(e) => setSpecialty(e.target.value)}
               >
-                {['PRIMARYCARE', 'CARDIOLOGY', 'NEUROLOGY', 'ONCOLOGY', 'RADIOLOGY', 'UROLOGY']
-                  .map((value, key) => (
-                  <MenuItem key={key} value={value}>{value}</MenuItem>
+                {[
+                  'PRIMARYCARE',
+                  'CARDIOLOGY',
+                  'NEUROLOGY',
+                  'ONCOLOGY',
+                  'RADIOLOGY',
+                  'UROLOGY',
+                ].map((value, key) => (
+                  <MenuItem key={key} value={value}>
+                    {value}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -337,15 +346,12 @@ export default function WaitingRoom() {
           </div>
           <div
             id="waiting-room-video-container"
-            className={classes.waitingRoomVideoContainer} 
+            className={classes.waitingRoomVideoContainer}
             ref={waitingRoomVideoContainer}
-          >
-          </div>
+          ></div>
         </div>
       </div>
-      <div
-        className={classes.containerCenter}
-      >
+      <div className={classes.containerCenter}>
         <Button variant="contained" color="secondary" onClick={handleJoinClick}>
           Join Call
         </Button>

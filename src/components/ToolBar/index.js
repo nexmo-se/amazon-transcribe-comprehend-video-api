@@ -8,6 +8,8 @@ import { useSignalling } from '../../hooks/useSignalling';
 import { useHistory } from 'react-router-dom';
 import { useParams } from 'react-router';
 import { usePublisher } from '../../hooks/usePublisher';
+import { useSession } from '../../hooks/useSession';
+import { UserContext } from '../../context/UserContext';
 
 import styles from './styles';
 
@@ -17,17 +19,19 @@ function ToolBar({
   handleAudioChange,
   hasVideo,
   hasAudio,
+  publisher,
 }) {
   const classes = styles();
   const { push } = useHistory();
   const { roomName } = useParams();
   const { renderedSesion } = useSignalling({ session });
-  const { destroyPublisher } = usePublisher();
+  const { preferences } = React.useContext(UserContext);
 
   const endCall = () => {
-    if (session) {
-      push(`/videorti/${roomName}/${renderedSesion}/end`);
-      // destroyPublisher();
+    if (publisher) {
+      // session.disconnect();
+      // publisher.destroy();
+      push(`/mta/${roomName}/${preferences.sessionId}/end`);
     }
   };
   return (

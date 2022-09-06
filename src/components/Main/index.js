@@ -12,13 +12,14 @@ import { useSignalling } from '../../hooks/useSignalling';
 import EntitiesList from '../EntitiesList';
 
 function Main() {
-  let translationPlaying = useRef(false);
-  let timePlayingLeft = useRef(0);
   // const [timePlayingLeft, setTime] = useState(0);
   const videoContainer = useRef();
   let { roomName } = useParams();
   const { preferences } = useContext(UserContext);
-  const [captions, setCaptions] = useState({text: 'Say something...', speaker: ''});
+  const [captions, setCaptions] = useState({
+    text: 'Say something...',
+    speaker: '',
+  });
 
   const [credentials, setCredentials] = useState(null);
   const [error, setError] = useState(null);
@@ -27,9 +28,10 @@ function Main() {
   const [userId, setUserId] = useState(null);
   // const [translationPlaying, setTranslationPlaying] = useState(false);
 
-  const { session, createSession, connected, status } = useSession({
-    container: videoContainer,
-  });
+  const { session, createSession, connected, status, destroySession } =
+    useSession({
+      container: videoContainer,
+    });
   // const medicalConditions = ['heart failure', 'type 2 diabetes', 'lung cancer'];
   const {
     messages,
@@ -50,6 +52,7 @@ function Main() {
     isPublishing,
     publisherError,
     destroyPublisher,
+    unpublish,
   } = usePublisher();
 
   useEffect(() => {
@@ -71,6 +74,10 @@ function Main() {
         setError(err);
         console.log(err);
       });
+
+    // return () => {
+    //   destroyPublisher();
+    // };
   }, [roomName]);
 
   useEffect(() => {
@@ -136,6 +143,15 @@ function Main() {
     }
   }, [publish, session, connected, pubInitialised]);
 
+  // useEffect(() => {
+  //   return () => {
+  //     // destroySession();
+  //     if (publisher) {
+  //       publisher.destroy();
+  //     }
+  //   };
+  // });
+
   return (
     <>
       <div className="videoContainer">
@@ -144,13 +160,16 @@ function Main() {
           ref={videoContainer}
           id="video-container"
         ></div>
-        <div className="medicalAnalysis" sx={{
-            display: "flex",
-            flexDirection: "column",
+        <div
+          className="medicalAnalysis"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
             maxHeight: 820,
-            overflow: "hidden",
-            overflowY: "scroll"
-        }}>
+            overflow: 'hidden',
+            overflowY: 'scroll',
+          }}
+        >
           <div className="entityType">
             <EntitiesList
               listOfEntities={medicalConditions}
@@ -167,17 +186,23 @@ function Main() {
             <EntitiesList listOfEntities={piiEntities} entity={'PII'} />
           </div>
           <div className="entityType">
-            <EntitiesList listOfEntities={ttpEntities} entity={'Test Treatment Procedures'} />
+            <EntitiesList
+              listOfEntities={ttpEntities}
+              entity={'Test Treatment Procedures'}
+            />
           </div>
         </div>
       </div>
-      <div className="original">{captions? `${captions.speaker}: ${captions.text}` : ''}</div>
+      <div className="original">
+        {captions ? `${captions.speaker}: ${captions.text}` : ''}
+      </div>
       <ToolBar
         handleAudioChange={handleAudioChange}
         handleVideoChange={handleVideoChange}
         session={session.current}
         hasAudio={hasAudio}
         hasVideo={hasVideo}
+        publisher={publisher}
       />
     </>
   );
