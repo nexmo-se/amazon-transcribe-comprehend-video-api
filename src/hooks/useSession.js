@@ -9,6 +9,7 @@ export function useSession({ container }) {
   const [streams, setStreams] = useState([]);
   const sessionRef = useRef(null);
   const [status, setNetworkStatus] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   const addStream = ({ stream }) => {
     setStreams((prev) => [...prev, stream]);
@@ -83,6 +84,14 @@ export function useSession({ container }) {
     removeStream({ stream: event.stream });
   }, []);
 
+  const onArchiveStarted = useCallback((event) => {
+    setIsArchiving(true);
+  }, []);
+
+  const onArchiveStopped = useCallback((event) => {
+    setIsArchiving(false);
+  }, []);
+
   const onSessionDisconnected = useCallback((event) => {
     setNetworkStatus('disconnected');
   }, []);
@@ -119,6 +128,8 @@ export function useSession({ container }) {
         sessionReconnecting: onSessionReconnecting,
         sessionDisconnected: onSessionDisconnected,
         connectionDestoyed: onConnectionDestroyed,
+        archiveStarted: onArchiveStarted,
+        archiveStopped: onArchiveStopped,
       };
       sessionRef.current.on(eventHandlers);
       return new Promise((resolve, reject) => {
@@ -139,6 +150,8 @@ export function useSession({ container }) {
       });
     },
     [
+      onArchiveStarted,
+      onArchiveStopped,
       onConnectionDestroyed,
       onSessionDisconnected,
       onSessionReconnecting,
@@ -163,5 +176,6 @@ export function useSession({ container }) {
     destroySession,
     streams,
     status,
+    isArchiving,
   };
 }

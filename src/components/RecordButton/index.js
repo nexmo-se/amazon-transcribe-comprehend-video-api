@@ -18,17 +18,17 @@ import Tooltip from '@mui/material/Tooltip';
 import { useParams } from 'react-router';
 import { useEffect } from 'react';
 
-export default function RecordingButton({ classes, session }) {
+export default function RecordingButton({ classes, session, isArchiving }) {
   const { preferences, setPreferences } = useContext(UserContext);
   let { roomName } = useParams();
   const { archiveId } = useSignalling({ session });
-  const [isRecording, setRecording] = useState(false);
+  // const [isArchiving, setRecording] = useState(false);
   const [renderId, setRenderId] = useState(null);
   const [sessionId, setSessionId] = useState(null);
   const localClasses = styles();
 
   const startRender = async (roomName) => {
-    if (isRecording) return;
+    if (isArchiving) return;
     try {
       const renderData = await render(roomName);
       if ((renderData.status = 200 && renderData.data)) {
@@ -65,10 +65,10 @@ export default function RecordingButton({ classes, session }) {
   }, [renderId, setPreferences, archiveId, preferences, sessionId]);
 
   useEffect(() => {
-    if (preferences.recording !== isRecording) {
+    if (preferences.recording !== isArchiving) {
       setPreferences({
         ...preferences,
-        recording: isRecording,
+        recording: isArchiving,
       });
     }
     // } else {
@@ -77,7 +77,7 @@ export default function RecordingButton({ classes, session }) {
     //     recording: false,
     //   });
     // }
-  }, [isRecording, preferences, setPreferences]);
+  }, [isArchiving, preferences, setPreferences]);
 
   const stopRenderAndRecording = async (renderId) => {
     if (renderId) {
@@ -94,29 +94,29 @@ export default function RecordingButton({ classes, session }) {
     } else return;
   };
 
-  useEffect(() => {
-    if (session) {
-      session.on('archiveStarted', () => {
-        setRecording(true);
-      });
-      session.on('archiveStopped', () => {
-        setRecording(false);
-      });
-    }
-    // return () => {
-    //   session.off('archiveStarted', () => {});
-    //   session.off('archiveStopped', () => {});
-    // };
-  });
+  // useEffect(() => {
+  //   if (session) {
+  //     session.on('archiveStarted', () => {
+  //       setRecording(true);
+  //     });
+  //     session.on('archiveStopped', () => {
+  //       setRecording(false);
+  //     });
+  //   }
+  //   // return () => {
+  //   //   session.off('archiveStarted', () => {});
+  //   //   session.off('archiveStopped', () => {});
+  //   // };
+  // });
 
   const handleRecordingStop = async (archiveId) => {
     try {
-      if (isRecording && archiveId) {
+      if (isArchiving && archiveId) {
         const data = await stopRecording(archiveId);
         console.log(data);
         if (data.status === 200 && data.data) {
           const { status } = data.data;
-          setRecording(false);
+          // setRecording(false);
         }
       }
     } catch (e) {
@@ -126,12 +126,12 @@ export default function RecordingButton({ classes, session }) {
 
   const handleRecordingAction = () => {
     console.log('trying to start recording');
-    isRecording ? stopRenderAndRecording(renderId) : startRender(roomName);
+    isArchiving ? stopRenderAndRecording(renderId) : startRender(roomName);
     // ? handleRecordingStop(archiveId)
     // : handleRecordingStart(sessionId);
   };
 
-  const title = isRecording ? 'Stop Recording' : 'Start Recording';
+  const title = isArchiving ? 'Stop Recording' : 'Start Recording';
 
   return (
     <Tooltip title={title} aria-label="add">
@@ -144,7 +144,7 @@ export default function RecordingButton({ classes, session }) {
         // size="small"
         className={classes.toolbarButtons}
       >
-        {isRecording ? (
+        {isArchiving ? (
           <FiberManualRecordIcon
             fontSize="large"
             className={localClasses.activeRecordingIcon}

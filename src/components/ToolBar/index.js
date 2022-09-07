@@ -20,6 +20,7 @@ function ToolBar({
   hasVideo,
   hasAudio,
   publisher,
+  isArchiving,
 }) {
   const classes = styles();
   const { push } = useHistory();
@@ -46,7 +47,11 @@ function ToolBar({
         handleVideoChange={handleVideoChange}
         hasVideo={hasVideo}
       />
-      <RecordButton classes={classes} session={session} />
+      <RecordButton
+        classes={classes}
+        session={session}
+        isArchiving={isArchiving}
+      />
       <EndCallButton classes={classes} handleEndCall={endCall} />
     </div>
   );
