@@ -31,7 +31,7 @@ export const MyDocument = ({ data }) => (
   <Document>
     <Page style={styles.page} size="A4">
       <View style={styles.section}>
-        {/* <Image
+        <Image
           src={
             'https://upload.wikimedia.org/wikipedia/commons/5/5a/Vonage_Logo.png'
           }
@@ -41,7 +41,7 @@ export const MyDocument = ({ data }) => (
             maxWidth: '150px',
             maxHeight: '100',
           }}
-        /> */}
+        />
         <Text
           style={{
             padding: '10px',
