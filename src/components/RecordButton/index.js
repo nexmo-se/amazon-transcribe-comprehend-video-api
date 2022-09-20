@@ -94,21 +94,6 @@ export default function RecordingButton({ classes, session, isArchiving }) {
     } else return;
   };
 
-  // useEffect(() => {
-  //   if (session) {
-  //     session.on('archiveStarted', () => {
-  //       setRecording(true);
-  //     });
-  //     session.on('archiveStopped', () => {
-  //       setRecording(false);
-  //     });
-  //   }
-  //   // return () => {
-  //   //   session.off('archiveStarted', () => {});
-  //   //   session.off('archiveStopped', () => {});
-  //   // };
-  // });
-
   const handleRecordingStop = async (archiveId) => {
     try {
       if (isArchiving && archiveId) {

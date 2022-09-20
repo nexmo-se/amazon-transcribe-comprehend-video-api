@@ -8,14 +8,17 @@ import ToolBar from '../ToolBar';
 import { getCredentials } from '../../api/fetchCreds';
 import { UserContext } from '../../context/UserContext';
 import { useSignalling } from '../../hooks/useSignalling';
+import { usePDFMine } from '../../hooks/usePDFMine';
+import { PDFDownloadLink, Document, Page } from '@react-pdf/renderer';
 
 import EntitiesList from '../EntitiesList';
+import { MessageSharp } from '@material-ui/icons';
 
 function Main() {
   // const [timePlayingLeft, setTime] = useState(0);
   const videoContainer = useRef();
   let { roomName } = useParams();
-  const { preferences } = useContext(UserContext);
+  const { preferences, setPreferences } = useContext(UserContext);
   const [captions, setCaptions] = useState({
     text: 'Say something...',
     speaker: '',
@@ -38,6 +41,8 @@ function Main() {
   } = useSession({
     container: videoContainer,
   });
+
+  const { MyDocument, instance } = usePDFMine();
   // const medicalConditions = ['heart failure', 'type 2 diabetes', 'lung cancer'];
   const {
     messages,
@@ -66,6 +71,27 @@ function Main() {
   }, [messages]);
 
   useEffect(() => {
+    console.log(messages);
+    console.log(preferences);
+
+    if (
+      messages &&
+      preferences.messages?.[preferences.messages.length - 1]?.text !=
+        messages.text
+      // preferences.messages.length
+    ) {
+      const messagesWithDate = {
+        ...messages,
+        timestamp: new Date().toTimeString(),
+      };
+      setPreferences({
+        ...preferences,
+        messages: [...preferences.messages, messagesWithDate],
+      });
+    }
+  }, [messages, preferences, setPreferences]);
+
+  useEffect(() => {
     getCredentials(roomName)
       .then(({ data }) => {
         console.log('Credential data: ', data);
@@ -80,10 +106,6 @@ function Main() {
         setError(err);
         console.log(err);
       });
-
-    // return () => {
-    //   destroyPublisher();
-    // };
   }, [roomName]);
 
   useEffect(() => {
@@ -93,18 +115,6 @@ function Main() {
       createSession({ apiKey, sessionId, token });
     }
   }, [createSession, credentials]);
-
-  // useEffect(() => {
-  //   if (preferences.renderId && preferences.archiveId && preferences.recording)
-  //     return () => {
-  //       destroyPublisher();
-  //     };
-  // }, [
-  //   destroyPublisher,
-  //   preferences.archiveId,
-  //   preferences.recording,
-  //   preferences.renderId,
-  // ]);
 
   const handleAudioChange = useCallback(() => {
     if (hasAudio) {
@@ -149,14 +159,11 @@ function Main() {
     }
   }, [publish, session, connected, pubInitialised]);
 
-  // useEffect(() => {
-  //   return () => {
-  //     // destroySession();
-  //     if (publisher) {
-  //       publisher.destroy();
-  //     }
-  //   };
-  // });
+  useEffect(() => {
+    return () => {
+      destroyPublisher();
+    };
+  }, [destroyPublisher]);
 
   return (
     <>
@@ -202,6 +209,7 @@ function Main() {
       <div className="original">
         {captions ? `${captions.speaker}: ${captions.text}` : ''}
       </div>
+
       <ToolBar
         handleAudioChange={handleAudioChange}
         handleVideoChange={handleVideoChange}

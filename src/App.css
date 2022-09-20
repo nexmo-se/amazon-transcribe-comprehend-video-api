@@ -10,7 +10,10 @@ body {
 ::-webkit-scrollbar {
   display: none;
 } */
-
+a {
+  color: #0060b6;
+  text-decoration: none;
+}
 .text {
   margin-left: 20px;
   margin-top: 25px;

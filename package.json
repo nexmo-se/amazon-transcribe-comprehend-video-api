@@ -14,6 +14,7 @@
     "@mui/icons-material": "^5.0.4",
     "@mui/material": "^5.0.4",
     "@opentok/client": "^2.23.4",
+    "@react-pdf/renderer": "^3.0.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -32,15 +33,16 @@
     "opentok": "^2.14.3",
     "opentok-layout-js": "^5.0.1",
     "query-string": "^7.1.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "react-error-overlay": "^6.0.9",
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
     "styled-components": "^5.3.1",
     "web-vitals": "^1.0.1",
-    "websocket-stream": "^5.5.2",
     "winston": "^3.3.3"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6 || ^17.0.0",
+    "react-dom": "^16.8.6 || ^17.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.14"

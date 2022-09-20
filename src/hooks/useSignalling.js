@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useContext } from 'react';
 // import { Message } from '../entities/ChatMessage';
 // import { UserContext } from '../context/UserContext';
 import { v4 as uuid } from 'uuid';
+import { usePDFMine } from './usePDFMine';
 
 export function useSignalling({ session }) {
   const [messages, setMessages] = useState(null);
@@ -45,11 +46,6 @@ export function useSignalling({ session }) {
     [signal]
   );
 
-  // useEffect(() => {
-  //   if (medicalConditions) console.log(medicalConditions);
-  //   if (medication) console.log(medication);
-  // }, [medicalContitions, medication]);
-
   const medicationListener = useCallback(({ data, from }) => {
     const dataJson = JSON.parse(data);
     // const medString = `${dataJson[0].Description} | ${dataJson[0].Code}`;
@@ -58,12 +54,17 @@ export function useSignalling({ session }) {
     if (dataJson.length) {
       dataJson.forEach((entity) => {
         if (entity?.Category === 'MEDICATION') {
-          setMedicationEntities((prev) => [{
-            Text: `${entity.Text} | ${ Math.floor(entity.Score * 10000)/100 }%`, 
-            concepts: entity.RxNormConcepts? entity.RxNormConcepts : []
-          }, ...prev]);
+          setMedicationEntities((prev) => [
+            {
+              Text: `${entity.Text} | ${
+                Math.floor(entity.Score * 10000) / 100
+              }%`,
+              concepts: entity.RxNormConcepts ? entity.RxNormConcepts : [],
+            },
+            ...prev,
+          ]);
         }
-      })
+      });
     }
   }, []);
 
@@ -74,12 +75,17 @@ export function useSignalling({ session }) {
     if (dataJson.length) {
       dataJson.forEach((entity) => {
         if (entity?.Category === 'MEDICAL_CONDITION') {
-          setMedicalConditionsEntities((prev) => [{
-            Text: `${entity.Text} | ${ Math.floor(entity.Score * 10000)/100 }%`, 
-            concepts: entity.ICD10CMConcepts? entity.ICD10CMConcepts : []
-          }, ...prev]);
+          setMedicalConditionsEntities((prev) => [
+            {
+              Text: `${entity.Text} | ${
+                Math.floor(entity.Score * 10000) / 100
+              }%`,
+              concepts: entity.ICD10CMConcepts ? entity.ICD10CMConcepts : [],
+            },
+            ...prev,
+          ]);
         }
-      })
+      });
     }
   }, []);
 
@@ -88,20 +94,32 @@ export function useSignalling({ session }) {
     if (dataJson.length) {
       dataJson.forEach((entity) => {
         if (entity?.Category === 'ANATOMY')
-          setAnatomyEntities((prev) => [{
-            Text: `${entity.Type} | ${entity.Text}`, 
-          }, ...prev]);
+          setAnatomyEntities((prev) => [
+            {
+              Text: `${entity.Type} | ${entity.Text}`,
+            },
+            ...prev,
+          ]);
 
         if (entity?.Category === 'PROTECTED_HEALTH_INFORMATION')
-          setPiiEntities((prev) => [{
-            Text: `${entity.Type} | ${entity.Text}`,
-          }, ...prev]);
+          setPiiEntities((prev) => [
+            {
+              Text: `${entity.Type} | ${entity.Text}`,
+            },
+            ...prev,
+          ]);
 
         if (entity?.Category === 'TEST_TREATMENT_PROCEDURE') {
-          var attribute = entity.Attributes && entity.Attributes[0]? ' | ' + entity.Attributes[0].Text : '';
-          setTtpEntities((prev) => [{
-            Text: entity.Text + attribute, 
-          }, ...prev]);
+          var attribute =
+            entity.Attributes && entity.Attributes[0]
+              ? ' | ' + entity.Attributes[0].Text
+              : '';
+          setTtpEntities((prev) => [
+            {
+              Text: entity.Text + attribute,
+            },
+            ...prev,
+          ]);
         }
       });
     }

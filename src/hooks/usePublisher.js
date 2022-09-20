@@ -23,7 +23,7 @@ export function usePublisher() {
     ({ stream }) => {
       if (stream.name !== 'EC') {
         console.log(stream);
-        preferences.streamId = stream.id;
+        // preferences.streamId = stream.id;
         const sessionId = stream.publisher.session.id;
         console.log(sessionId);
         setSessionId(sessionId);
@@ -45,7 +45,7 @@ export function usePublisher() {
         setIsPublishing(true);
       }
     },
-    [preferences, roomName]
+    [roomName]
   );
 
   const streamDestroyedListener = useCallback(({ stream }) => {

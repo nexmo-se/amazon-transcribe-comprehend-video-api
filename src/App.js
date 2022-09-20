@@ -52,6 +52,11 @@ function App() {
   const [preferences, setPreferences] = useState({
     name: null,
     defaultSettings: {},
+    messages: [],
+    renderId: null,
+    archiveId: null,
+    recording: false,
+    sessionId: null,
   });
   const preferencesValue = useMemo(
     () => ({ preferences, setPreferences }),

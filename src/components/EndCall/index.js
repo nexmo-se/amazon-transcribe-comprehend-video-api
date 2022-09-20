@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { fetchRecordings } from '../../api/fetchRecording';
 import { useParams } from 'react-router';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import { IconButton } from '@material-ui/core';
+import { useSignalling } from '../../hooks/useSignalling';
 
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -10,14 +11,19 @@ import CardContent from '@material-ui/core/CardContent';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import { usePublisher } from '../../hooks/usePublisher';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { MyDocument } from '../../utils/document';
+import { UserContext } from '../../context/UserContext';
 
 import styles from './styles';
 
 export default function EndCall() {
   const { push } = useHistory();
+  const { preferences, setPreferences } = useContext(UserContext);
   const [recordings, setRecordings] = useState(null);
   const classes = styles();
   const { sessionId } = useParams();
+  const [data, setData] = useState([]);
 
   const { destroyPublisher } = usePublisher();
 
@@ -25,7 +31,7 @@ export default function EndCall() {
     push('/');
   };
   useEffect(() => {
-    destroyPublisher();
+    // destroyPublisher();
     // if (sessionId !== 'undefined') {
     console.log(sessionId);
     fetchRecordings(sessionId)
@@ -42,10 +48,10 @@ export default function EndCall() {
   }, [sessionId, destroyPublisher]);
 
   useEffect(() => {
-    setTimeout(() => {
-      window.OT.publishers.map((e) => e)[0].destroy();
-    }, 3000);
-  });
+    if (preferences.messages) {
+      setData(preferences.messages);
+    }
+  }, [data, preferences.messages]);
 
   return (
     <div className={classes.container}>
@@ -58,6 +64,21 @@ export default function EndCall() {
           className={classes.new__meeting}
         >
           Start new meeting
+        </IconButton>
+
+        <IconButton
+          // onClick={redirectNewMeeting}
+          className={classes.new__meeting}
+        >
+          <PDFDownloadLink
+            style={{ color: 'rgb(43,158,250)' }}
+            document={<MyDocument data={data} />}
+            fileName="transcript.pdf"
+          >
+            {({ blob, url, loading, error }) =>
+              loading ? 'Loading document...' : 'Download Transcript'
+            }
+          </PDFDownloadLink>
         </IconButton>
       </div>
       <div className={classes.banner}>
