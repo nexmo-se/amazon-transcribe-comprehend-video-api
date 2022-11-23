@@ -1,6 +1,35 @@
-# Amazon Transcribe Comprehend Video API
+# Vonage Video API Medical Transcryption Analysis
 
-## Architecture
+This application shows how to integrate the Vonage Video API with AWS Medical transcription and Medical comprehend APIs to build a video conferencing application that performs a medical analysis on every user's speech with a focus on medical terms.
+
+## Prerequisites
+
+- You need to have `AccessKeyId` and `SecretAccessKey` from AWS configured with the following policy
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "comprehendmedical:DescribeEntitiesDetectionV2Job",
+                "comprehendmedical:DetectEntitiesV2",
+                "comprehendmedical:InferRxNorm",
+                "transcribe:StartStreamTranscription",
+                "transcribe:StartMedicalStreamTranscriptionWebSocket",
+                "transcribe:StartMedicalStreamTranscription",
+                "transcribe:ListMedicalTranscriptionJobs",
+                "transcribe:StartStreamTranscriptionWebSocket",
+                "transcribe:ListMedicalVocabularies",
+                "comprehendmedical:InferICD10CM"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
 
 ## Running the app
 
